@@ -43,7 +43,7 @@ export function Navbar() {
           {COUPLE.monogram}
         </a>
 
-        <ul className="hidden items-center gap-7 md:flex">
+        <ul className="hidden items-center gap-7 lg:flex">
           {links.map((link) => (
             <li key={link.href}>
               <a
@@ -62,7 +62,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <span className="hidden sm:block">
-            <LinkButton href="#rsvp" size="sm" variant={scrolled ? 'primary' : 'light'}>
+            <LinkButton href="#rsvp" size="sm" variant={scrolled ? 'primary' : 'light'} className="whitespace-nowrap">
               Confirmar presença
             </LinkButton>
           </span>
@@ -70,7 +70,7 @@ export function Navbar() {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Abrir menu"
-            className={cn('rounded-full p-2.5 transition-colors md:hidden', scrolled ? 'text-olive hover:text-ink' : 'text-paper')}
+            className={cn('rounded-full p-2.5 transition-colors lg:hidden', scrolled ? 'text-olive hover:text-ink' : 'text-paper')}
           >
             <Menu className="size-6" />
           </button>
@@ -78,7 +78,7 @@ export function Navbar() {
       </nav>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-paper p-6 animate-fade-in md:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col bg-paper p-6 animate-fade-in lg:hidden">
           <div className="flex items-center justify-between border-b border-olive/15 pb-5">
             <span className="font-serif text-3xl font-semibold tracking-widest text-olive">{COUPLE.monogram}</span>
             <button type="button" onClick={() => setOpen(false)} aria-label="Fechar menu" className="rounded-full p-2 text-olive">
