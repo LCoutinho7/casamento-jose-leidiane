@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/*
+ * Tokens do projeto. Todo valor visual usado nos componentes sai daqui
+ * via classes utilitárias (bg-paper, text-olive, font-serif...).
+ */
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-paper: #f5f5f0;
+  --color-sand: #eae7df;
+  --color-sand-dark: #d9d5cb;
+  --color-ink: #1a1a1a;
+  --color-muted: #4a4a4a;
+  --color-olive: #5a5a40;
+  --color-olive-dark: #4a4a30;
+  --color-olive-light: #a5a58d;
+  --color-sage: #7a8565;
+  --color-terracotta: #9c6b55;
+
+  /* papéis do mural de bilhetinhos */
+  --color-note-cream: #faf9f5;
+  --color-note-peach: #fff2eb;
+  --color-note-terracotta: #fbe8de;
+  --color-note-sage: #f2f6ed;
+  --color-note-peach-edge: #f2c9b8;
+  --color-note-terracotta-edge: #e8bfad;
+  --color-note-sage-edge: #d0dac2;
+
+  --shadow-card: 0 1px 2px rgb(90 90 64 / 0.06), 0 12px 32px rgb(90 90 64 / 0.08);
+  --shadow-paper: 0 1px 3px rgb(90 90 64 / 0.05), 2px 4px 18px rgb(90 90 64 / 0.07);
+
+  --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
+
+  --animate-fade-in: fade-in 200ms var(--ease-out-soft) both;
+  --animate-rise-in: rise-in 280ms var(--ease-out-soft) both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-olive) 20%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-olive);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-olive);
+}

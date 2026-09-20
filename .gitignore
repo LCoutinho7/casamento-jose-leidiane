@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.DS_Store
+
+# Fotos originais em alta resolução (as otimizadas ficam em public/images)
+assets/
+
+# Ferramentas de trabalho locais
+CLAUDE.md
+docs/
+.claude/
+.playwright-mcp/
+
+# Screenshots de crítica de UI
+tmp-critique/
