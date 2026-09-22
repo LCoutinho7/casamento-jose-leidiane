@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Calendar, Check, Download } from 'lucide-react';
 import { COUPLE, WEDDING_DATE, WEDDING_DATE_LABEL } from '../../data/wedding';
 import { useCountdown } from '../../hooks/useCountdown';
-import { pad } from '../../lib/format';
+import { useRevealOnce } from '../../hooks/useRevealOnce';
+import { CountdownCard } from '../CountdownCard';
 import { Button, LinkButton } from '../ui/Button';
 import { SectionHeading } from '../ui/SectionHeading';
 
@@ -28,12 +29,12 @@ const icsFile = [
 export function Countdown() {
   const time = useCountdown(WEDDING_DATE);
   const [saved, setSaved] = useState(false);
+  const { ref, revealed } = useRevealOnce<HTMLDivElement>();
 
   const units = [
     { label: 'dias', value: time.days },
     { label: 'horas', value: time.hours },
-    { label: 'min', value: time.minutes },
-    { label: 'seg', value: time.seconds },
+    { label: 'minutos', value: time.minutes },
   ];
 
   const downloadIcs = () => {
@@ -53,14 +54,9 @@ export function Countdown() {
         description={`${WEDDING_DATE_LABEL}, em ${COUPLE.city}.`}
       />
 
-      <div className="mx-auto mt-12 grid max-w-3xl grid-cols-4 gap-3 sm:gap-4" aria-live="polite">
-        {units.map((unit) => (
-          <div key={unit.label} className="rounded-2xl border border-olive/15 bg-paper px-2 py-6 text-center sm:py-8">
-            <span className="block font-mono text-3xl font-medium tracking-tight text-olive tabular-nums sm:text-5xl">
-              {pad(unit.value)}
-            </span>
-            <span className="mt-2 block text-[0.6875rem] font-semibold tracking-[0.2em] text-olive uppercase">{unit.label}</span>
-          </div>
+      <div ref={ref} className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-3 sm:gap-4" aria-live="polite">
+        {units.map((unit, index) => (
+          <CountdownCard key={unit.label} label={unit.label} value={unit.value} revealed={revealed} delay={index * 120} />
         ))}
       </div>
 

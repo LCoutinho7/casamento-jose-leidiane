@@ -45,7 +45,7 @@ export function Gallery() {
 
   return (
     <section id="galeria" className="bg-sand/50 px-6 py-24 md:px-10 md:py-32">
-      <SectionHeading eyebrow="Fotos" title="Fragmentos de nós" description="Instantes que guardam o riso leve e a verdade dos nossos dias." />
+      <SectionHeading eyebrow="Fotos" title="Nossos momentos" description="Instantes que guardam o riso leve e a verdade dos nossos dias." />
 
       <div className="mt-10 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filtrar fotos">
         {filters.map((f) => (

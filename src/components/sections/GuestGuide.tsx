@@ -3,14 +3,6 @@ import { COUPLE } from '../../data/wedding';
 import { LinkButton } from '../ui/Button';
 import { SectionHeading } from '../ui/SectionHeading';
 
-const palette = [
-  { name: 'Oliva', className: 'bg-olive text-paper' },
-  { name: 'Sálvia', className: 'bg-sage text-paper' },
-  { name: 'Areia', className: 'bg-sand-dark text-ink' },
-  { name: 'Linho', className: 'bg-sand text-ink' },
-  { name: 'Terracota', className: 'bg-terracotta text-paper' },
-];
-
 const whatsappMessage = 'Olá! Estou no site do casamento de Zé e Leidi e tenho uma dúvida.';
 
 export function GuestGuide() {
@@ -28,28 +20,13 @@ export function GuestGuide() {
             <span className="flex size-11 items-center justify-center rounded-full bg-olive/10 text-olive">
               <Shirt className="size-5" />
             </span>
-            <div>
-              <h3 className="text-2xl text-ink">Traje</h3>
-              <p className="eyebrow text-[0.625rem]">Passeio completo</p>
-            </div>
+            <h3 className="text-2xl text-ink">Traje social</h3>
           </div>
 
-          <p className="mt-6 text-sm leading-relaxed text-muted">
-            Terno ou costume para eles; vestido longo ou midi para elas. Se quiser entrar no clima, a paleta da
-            celebração fica nestes tons:
-          </p>
-
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {palette.map((color) => (
-              <li key={color.name} className={`rounded-full px-4 py-1.5 text-xs font-medium ${color.className}`}>
-                {color.name}
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-6 flex items-start gap-2 text-xs text-olive italic">
-            <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-            Branco, off-white e marfim ficam reservados à noiva.
+          <p className="mt-6 flex items-start gap-2 text-sm leading-relaxed text-muted">
+            <AlertCircle className="mt-0.5 size-4 shrink-0 text-olive" />
+            Lembre-se: não usem branco, off-white, marfim e outros tons claros que possam parecer branco. Essa cor fica
+            reservada para a noiva.
           </p>
         </article>
 
@@ -58,7 +35,7 @@ export function GuestGuide() {
             <MessageCircle className="size-8 text-sand" />
             <h3 className="mt-5 text-2xl">Ficou com dúvida?</h3>
             <p className="mt-3 text-sm leading-relaxed text-sand">
-              Hospedagem, transporte, crianças, restrições alimentares. Fale direto com os noivos.
+              Caso não tenha a resposta nas Perguntas Frequentes, fale com os noivos.
             </p>
           </div>
           {whatsappUrl ? (

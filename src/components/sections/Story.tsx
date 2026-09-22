@@ -27,7 +27,9 @@ export function Story() {
             <div className="w-full md:w-1/2">
               <p className="font-mono text-xs tracking-[0.25em] text-olive uppercase">{chapter.date}</p>
               <h3 className="mt-3 text-3xl leading-tight text-ink sm:text-4xl">{chapter.title}</h3>
-              <blockquote className="my-5 border-l-2 border-olive pl-4 font-serif text-xl text-olive italic">{chapter.quote}</blockquote>
+              <blockquote className="my-5 border-l-2 border-olive pl-4 font-serif text-xl whitespace-pre-line text-olive italic">
+                {chapter.quote}
+              </blockquote>
               <p className="max-w-[60ch] leading-relaxed text-muted">{chapter.text}</p>
             </div>
 

@@ -13,11 +13,11 @@ export function Welcome() {
         </p>
         <p>
           A nossa não foi escrita com pressa. Foi tecida nas alegrias do dia a dia, nos silêncios confortáveis e na
-          certeza crescente de que tínhamos encontrado o nosso lugar um no outro.
+          certeza crescente de que tínhamos encontrado o nosso lugar de paz um no outro.
         </p>
         <p>
-          Este site é um pedaço dessa história e um convite para o capítulo mais importante. Folheie, veja por onde
-          passamos e prepare-se para celebrar com a gente.
+          Este site é um pedaço dessa história e um convite para o capítulo mais importante. Veja por onde passamos,
+          nossas memórias e prepare-se para celebrar com a gente.
         </p>
       </div>
 

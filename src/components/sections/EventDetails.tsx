@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Copy, MapPin, Navigation } from 'lucide-react';
+import { Check, Clock, Copy, MapPin, Navigation } from 'lucide-react';
 import { VENUES, WEDDING_DATE_LABEL } from '../../data/wedding';
 import type { Venue } from '../../types';
 import { Button, LinkButton } from '../ui/Button';
@@ -20,6 +20,11 @@ function VenueCard({ kind, venue }: { kind: string; venue: Venue }) {
       <div>
         <p className="eyebrow">{kind}</p>
         <h3 className="mt-3 text-3xl text-ink">{venue.name}</h3>
+        <p className="mt-2 flex items-center gap-2 text-sm text-olive">
+          <Clock className="size-4 shrink-0" />
+          {/* horário em monospace; texto livre ("logo após a cerimônia") na fonte de leitura */}
+          <span className={/^\d/.test(venue.time) ? 'font-mono' : undefined}>{venue.time}</span>
+        </p>
         <p className="mt-4 flex items-start gap-2 text-sm text-muted">
           <MapPin className="mt-0.5 size-4 shrink-0 text-olive" />
           <span>

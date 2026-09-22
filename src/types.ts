@@ -3,6 +3,8 @@ export interface Venue {
   address: string;
   city: string;
   mapsUrl: string;
+  /** Horário exibido no cartão (ex.: "16h30"). */
+  time: string;
   note?: string;
 }
 
