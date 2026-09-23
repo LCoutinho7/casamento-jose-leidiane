@@ -1,15 +1,18 @@
 import { useEffect, type ReactNode } from 'react';
 import { X } from 'lucide-react';
+import { cn } from '../../lib/cn';
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Classe de fundo do cartão; permite pré-visualizar a cor escolhida. */
+  surfaceClassName?: string;
 }
 
 /** Diálogo modal com fechamento por Esc, clique no fundo e botão. */
-export function Modal({ open, onClose, title, children }: ModalProps) {
+export function Modal({ open, onClose, title, children, surfaceClassName }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -33,13 +36,16 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className="relative my-8 w-full max-w-lg rounded-2xl border border-olive/15 bg-paper p-6 shadow-card animate-rise-in sm:p-8"
+        className={cn(
+          'relative my-8 w-full max-w-lg rounded-2xl border border-clay/15 p-6 shadow-card animate-rise-in transition-colors duration-200 ease-out-soft sm:p-8',
+          surfaceClassName ?? 'bg-paper',
+        )}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute top-4 right-4 rounded-full p-2 text-olive transition-colors hover:bg-ink/5 hover:text-ink"
+          className="absolute top-4 right-4 rounded-full p-2 text-clay transition-colors hover:bg-ink/5 hover:text-ink"
         >
           <X className="size-5" />
         </button>

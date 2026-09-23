@@ -16,17 +16,17 @@ function VenueCard({ kind, venue }: { kind: string; venue: Venue }) {
   };
 
   return (
-    <article className="flex flex-col justify-between rounded-2xl border border-olive/15 bg-paper p-8 shadow-card">
+    <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-paper p-8 shadow-card">
       <div>
         <p className="eyebrow">{kind}</p>
         <h3 className="mt-3 text-3xl text-ink">{venue.name}</h3>
-        <p className="mt-2 flex items-center gap-2 text-sm text-olive">
+        <p className="mt-2 flex items-center gap-2 text-sm text-clay">
           <Clock className="size-4 shrink-0" />
           {/* horário em monospace; texto livre ("logo após a cerimônia") na fonte de leitura */}
           <span className={/^\d/.test(venue.time) ? 'font-mono' : undefined}>{venue.time}</span>
         </p>
         <p className="mt-4 flex items-start gap-2 text-sm text-muted">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-olive" />
+          <MapPin className="mt-0.5 size-4 shrink-0 text-clay" />
           <span>
             {venue.address}
             <br />
@@ -36,7 +36,7 @@ function VenueCard({ kind, venue }: { kind: string; venue: Venue }) {
         {venue.note && <p className="mt-4 rounded-xl bg-sand/60 p-4 text-sm text-muted italic">{venue.note}</p>}
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 border-t border-olive/15 pt-6">
+      <div className="mt-8 flex flex-col gap-3 border-t border-clay/15 pt-6">
         <LinkButton href={venue.mapsUrl} target="_blank" rel="noopener noreferrer">
           <Navigation className="size-4" /> Como chegar
         </LinkButton>
@@ -66,8 +66,8 @@ export function EventDetails() {
           {VENUES.reception && <VenueCard kind="Recepção" venue={VENUES.reception} />}
         </div>
       ) : (
-        <div className="mx-auto mt-14 max-w-2xl rounded-2xl border border-dashed border-olive/30 bg-sand/40 p-10 text-center">
-          <MapPin className="mx-auto size-8 text-olive" />
+        <div className="mx-auto mt-14 max-w-2xl rounded-2xl border border-dashed border-clay/30 bg-sand/40 p-10 text-center">
+          <MapPin className="mx-auto size-8 text-clay" />
           <h3 className="mt-4 text-2xl text-ink">Local e horário em breve</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted">
             Estamos fechando os últimos detalhes. Assim que o local for confirmado, ele aparece aqui com mapa e

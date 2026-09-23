@@ -7,7 +7,7 @@ export function Welcome() {
       <SectionHeading eyebrow="Um prólogo" title="As páginas que escrevemos juntos" />
 
       <div className="mx-auto mt-12 max-w-[65ch] space-y-6 text-lg leading-relaxed text-muted">
-        <p className="first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:leading-[0.8] first-letter:text-olive">
+        <p className="first-letter:float-left first-letter:mr-3 first-letter:font-serif first-letter:text-6xl first-letter:leading-[0.8] first-letter:text-clay">
           Há momentos que, quando vividos, parecem comuns: uma sessão de cinema, uma viagem de carro, uma conversa que
           atravessa a noite. Mas o tempo, como um bom editor, junta esses recortes e revela uma história maior.
         </p>
@@ -23,7 +23,7 @@ export function Welcome() {
 
       <p className="mt-12 text-center">
         <span className="eyebrow block">Com amor,</span>
-        <span className="mt-2 block font-serif text-5xl text-olive italic">
+        <span className="mt-2 block font-serif text-5xl text-clay italic">
           {COUPLE.groomNickname} &amp; {COUPLE.brideNickname}
         </span>
       </p>

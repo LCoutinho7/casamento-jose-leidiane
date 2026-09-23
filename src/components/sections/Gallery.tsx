@@ -63,7 +63,7 @@ export function Gallery() {
             }}
             className={cn(
               'rounded-full border px-5 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-colors duration-150',
-              filter === f.id ? 'border-olive bg-olive text-paper' : 'border-olive/25 bg-paper text-olive hover:border-olive',
+              filter === f.id ? 'border-clay bg-clay text-paper' : 'border-clay/25 bg-paper text-clay hover:border-clay',
             )}
           >
             {f.label}
@@ -77,7 +77,7 @@ export function Gallery() {
             <button
               type="button"
               onClick={() => setCurrent(i)}
-              className="group block w-full overflow-hidden rounded-2xl border border-olive/15 bg-sand shadow-paper"
+              className="group block w-full overflow-hidden rounded-2xl border border-clay/15 bg-sand shadow-paper"
             >
               <img
                 src={p.src}
@@ -125,7 +125,7 @@ export function Gallery() {
             <img src={photo.src} alt={photo.alt} className="max-h-[78vh] max-w-full rounded-xl object-contain" />
             <figcaption className="mt-4 text-center text-sm text-sand">
               {photo.alt}
-              <span className="mt-1 block font-mono text-xs tracking-widest text-olive-light">
+              <span className="mt-1 block font-mono text-xs tracking-widest text-clay-light">
                 {pad(current! + 1)} / {pad(photos.length)}
               </span>
             </figcaption>

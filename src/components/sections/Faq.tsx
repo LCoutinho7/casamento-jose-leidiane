@@ -12,15 +12,15 @@ export function Faq() {
           <details
             key={item.question}
             open={index === 0}
-            className="group rounded-2xl border border-olive/15 bg-paper shadow-paper open:border-olive/40"
+            className="group rounded-2xl border border-clay/15 bg-paper shadow-paper open:border-clay/40"
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 font-serif text-xl text-ink transition-colors hover:text-olive [&::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 font-serif text-xl text-ink transition-colors hover:text-clay [&::-webkit-details-marker]:hidden">
               {item.question}
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sand text-olive transition-transform duration-200 ease-out-soft group-open:rotate-180 group-open:bg-olive group-open:text-paper">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sand text-clay transition-transform duration-200 ease-out-soft group-open:rotate-180 group-open:bg-clay group-open:text-paper">
                 <ChevronDown className="size-4" />
               </span>
             </summary>
-            <p className="border-t border-olive/10 px-6 pt-4 pb-6 text-sm leading-relaxed text-muted">{item.answer}</p>
+            <p className="border-t border-clay/10 px-6 pt-4 pb-6 text-sm leading-relaxed text-muted">{item.answer}</p>
           </details>
         ))}
       </div>

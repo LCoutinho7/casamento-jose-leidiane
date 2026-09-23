@@ -27,7 +27,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="mb-1.5 text-xs font-semibold tracking-wider text-muted uppercase">{label}</p>
-      <div className="flex items-center gap-2 rounded-xl border border-olive/20 bg-white p-2 pl-4">
+      <div className="flex items-center gap-2 rounded-xl border border-clay/20 bg-white p-2 pl-4">
         <code className="min-w-0 flex-1 truncate font-mono text-xs text-ink">{value}</code>
         <Button size="sm" onClick={copy} className="shrink-0">
           {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
@@ -66,7 +66,7 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
         <>
           <p className="eyebrow">Presentear os noivos</p>
           <h3 className="mt-2 text-3xl leading-tight text-ink">{gift.name}</h3>
-          {!gift.customAmount && <p className="mt-1 font-mono text-xl text-olive">{formatCurrency(gift.price)}</p>}
+          {!gift.customAmount && <p className="mt-1 font-mono text-xl text-clay">{formatCurrency(gift.price)}</p>}
           <p className="mt-4 text-sm leading-relaxed text-muted">{gift.description}</p>
 
           {gift.customAmount && (
@@ -85,7 +85,7 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
             </div>
           )}
 
-          <div className="mt-8 space-y-5 border-t border-olive/15 pt-6">
+          <div className="mt-8 space-y-5 border-t border-clay/15 pt-6">
             {COUPLE.pixKey ? (
               payload ? (
                 <>

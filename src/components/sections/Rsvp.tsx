@@ -5,8 +5,8 @@ import { SectionHeading } from '../ui/SectionHeading';
 export function Rsvp() {
   return (
     <section id="rsvp" className="px-6 py-24 md:px-10 md:py-32">
-      <div className="mx-auto max-w-3xl rounded-3xl border border-olive/15 bg-paper p-10 text-center shadow-card md:p-16">
-        <Heart className="mx-auto size-8 fill-current text-olive" />
+      <div className="mx-auto max-w-3xl rounded-3xl border border-clay/15 bg-paper p-10 text-center shadow-card md:p-16">
+        <Heart className="mx-auto size-8 fill-current text-clay" />
         <SectionHeading
           className="mt-6"
           eyebrow="Sua presença"
@@ -18,7 +18,7 @@ export function Rsvp() {
             </>
           }
         />
-        <p className="mt-8 inline-block rounded-full border border-olive/30 px-5 py-2 font-mono text-xs tracking-[0.25em] text-olive uppercase">
+        <p className="mt-8 inline-block rounded-full border border-clay/30 px-5 py-2 font-mono text-xs tracking-[0.25em] text-clay uppercase">
           Em breve
         </p>
       </div>

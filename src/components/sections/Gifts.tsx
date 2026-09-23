@@ -23,9 +23,9 @@ export function Gifts() {
       </Reveal>
 
       <div className="mx-auto mt-14 grid max-w-5xl gap-6 md:grid-cols-2">
-        <article className="flex flex-col justify-between rounded-2xl border border-olive/15 bg-paper p-6 shadow-card md:p-8">
+        <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-paper p-6 shadow-card md:p-8">
           <div>
-            <Gift className="size-8 text-olive" />
+            <Gift className="size-8 text-clay" />
             <h3 className="mt-5 text-2xl text-ink">Lista no Magazine Luiza</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               Itens escolhidos pelos noivos para a casa nova, com entrega direta para eles.
@@ -36,11 +36,11 @@ export function Gifts() {
               Abrir lista <ExternalLink className="size-4" />
             </LinkButton>
           ) : (
-            <p className="mt-6 font-mono text-xs tracking-widest text-olive uppercase">Lista em preparação</p>
+            <p className="mt-6 font-mono text-xs tracking-widest text-clay uppercase">Lista em preparação</p>
           )}
         </article>
 
-        <article className="flex flex-col justify-between rounded-2xl border border-olive/15 bg-olive p-6 text-paper shadow-card md:p-8">
+        <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-clay p-6 text-paper shadow-card md:p-8">
           <div>
             <QrCode className="size-8 text-sand" />
             <h3 className="mt-5 text-2xl">Cotas via PIX</h3>
@@ -56,13 +56,13 @@ export function Gifts() {
         {GIFT_QUOTAS.map((gift) => (
           <li key={gift.id}>
             <TiltCard className="h-full">
-              <div className="flex h-full flex-col justify-between rounded-2xl border border-olive/15 bg-paper p-6 shadow-paper transition-[border-color,box-shadow] duration-150 ease-out-soft hover:border-olive/40 hover:shadow-card">
+              <div className="flex h-full flex-col justify-between rounded-2xl border border-clay/15 bg-paper p-6 shadow-paper transition-[border-color,box-shadow] duration-150 ease-out-soft hover:border-clay/40 hover:shadow-card">
                 <div>
                   <h3 className="text-xl leading-snug text-ink">{gift.name}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{gift.description}</p>
                 </div>
-                <div className="mt-6 flex items-center justify-between gap-3 border-t border-olive/15 pt-4">
-                  <span className="font-mono text-lg text-olive">
+                <div className="mt-6 flex items-center justify-between gap-3 border-t border-clay/15 pt-4">
+                  <span className="font-mono text-lg text-clay">
                     {gift.customAmount ? 'Você escolhe' : formatCurrency(gift.price)}
                   </span>
                   <Button size="sm" onClick={() => setSelected(gift)}>

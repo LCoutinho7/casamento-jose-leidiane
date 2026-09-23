@@ -8,11 +8,15 @@ import { Modal } from './ui/Modal';
 
 const MAX_LENGTH = 300;
 
-export const paperStyles: Record<NotePaper, { label: string; className: string }> = {
-  cream: { label: 'Creme', className: 'bg-note-cream border-olive/20' },
-  peach: { label: 'Pêssego', className: 'bg-note-peach border-note-peach-edge' },
-  terracotta: { label: 'Terracota', className: 'bg-note-terracotta border-note-terracotta-edge' },
-  sage: { label: 'Sálvia', className: 'bg-note-sage border-note-sage-edge' },
+export const paperStyles: Record<NotePaper, { label: string; className: string; surface: string }> = {
+  cream: { label: 'Creme', className: 'bg-note-cream border-clay/20', surface: 'bg-note-cream' },
+  peach: { label: 'Pêssego', className: 'bg-note-peach border-note-peach-edge', surface: 'bg-note-peach' },
+  terracotta: {
+    label: 'Terracota',
+    className: 'bg-note-terracotta border-note-terracotta-edge',
+    surface: 'bg-note-terracotta',
+  },
+  sage: { label: 'Sálvia', className: 'bg-note-sage border-note-sage-edge', surface: 'bg-note-sage' },
 };
 
 interface NoteModalProps {
@@ -36,7 +40,7 @@ export function NoteModal({ open, onClose, onSubmit }: NoteModalProps) {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Deixar um bilhetinho">
+    <Modal open={open} onClose={onClose} title="Deixar um bilhetinho" surfaceClassName={paperStyles[paper].surface}>
       <p className="eyebrow">Mural de bilhetinhos</p>
       <h3 className="mt-2 text-3xl leading-tight text-ink">Deixe seu recadinho</h3>
       <p className="mt-2 text-sm text-muted">Algumas palavras de carinho que os noivos vão guardar para sempre.</p>
@@ -56,7 +60,7 @@ export function NoteModal({ open, onClose, onSubmit }: NoteModalProps) {
                 className={cn(
                   'rounded-full border px-4 py-1.5 text-xs transition-[border-color,box-shadow] duration-150',
                   paperStyles[id].className,
-                  paper === id ? 'border-olive font-semibold text-ink ring-2 ring-olive/30' : 'text-muted',
+                  paper === id ? 'border-clay font-semibold text-ink ring-2 ring-clay/30' : 'text-muted',
                 )}
               >
                 {paperStyles[id].label}

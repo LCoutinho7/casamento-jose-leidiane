@@ -15,22 +15,22 @@ export function GuestGuide() {
       <SectionHeading eyebrow="Guia dos convidados" title="O que você precisa saber" />
 
       <div className="mx-auto mt-14 grid max-w-5xl gap-8 md:grid-cols-[3fr_2fr]">
-        <article className="rounded-2xl border border-olive/15 bg-paper p-8 shadow-card">
+        <article className="rounded-2xl border border-clay/15 bg-paper p-8 shadow-card">
           <div className="flex items-center gap-4">
-            <span className="flex size-11 items-center justify-center rounded-full bg-olive/10 text-olive">
+            <span className="flex size-11 items-center justify-center rounded-full bg-clay/10 text-clay">
               <Shirt className="size-5" />
             </span>
             <h3 className="text-2xl text-ink">Traje social</h3>
           </div>
 
           <p className="mt-6 flex items-start gap-2 text-sm leading-relaxed text-muted">
-            <AlertCircle className="mt-0.5 size-4 shrink-0 text-olive" />
+            <AlertCircle className="mt-0.5 size-4 shrink-0 text-clay" />
             Lembre-se: não usem branco, off-white, marfim e outros tons claros que possam parecer branco. Essa cor fica
             reservada para a noiva.
           </p>
         </article>
 
-        <article className="flex flex-col justify-between rounded-2xl border border-olive/15 bg-olive p-8 text-paper shadow-card">
+        <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-clay p-8 text-paper shadow-card">
           <div>
             <MessageCircle className="size-8 text-sand" />
             <h3 className="mt-5 text-2xl">Ficou com dúvida?</h3>

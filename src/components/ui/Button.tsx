@@ -8,9 +8,9 @@ const base =
   'inline-flex items-center justify-center gap-2 rounded-full font-sans font-semibold uppercase tracking-[0.18em] transition-[background-color,border-color,transform] duration-150 ease-out-soft active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-olive text-paper hover:bg-olive-dark',
-  secondary: 'border border-olive/40 text-olive hover:border-olive hover:bg-olive/5',
-  ghost: 'text-olive hover:text-ink',
+  primary: 'bg-clay text-paper hover:bg-clay-dark',
+  secondary: 'border border-clay/40 text-clay hover:border-clay hover:bg-clay/5',
+  ghost: 'text-clay hover:text-ink',
   light: 'bg-paper text-ink hover:bg-sand',
   'outline-light': 'border border-paper/40 bg-ink/25 text-paper backdrop-blur-sm hover:border-paper hover:bg-ink/40',
 };

@@ -2,7 +2,7 @@
 
 /*
  * Tokens do projeto. Todo valor visual usado nos componentes sai daqui
- * via classes utilitárias (bg-paper, text-olive, font-serif...).
+ * via classes utilitárias (bg-paper, text-clay, font-serif...).
  */
 @theme {
   --font-serif: "Cormorant Garamond", Georgia, serif;
@@ -14,11 +14,12 @@
   --color-sand-dark: #d9d5cb;
   --color-ink: #1a1a1a;
   --color-muted: #4a4a4a;
-  --color-olive: #5a5a40;
-  --color-olive-dark: #4a4a30;
-  --color-olive-light: #a5a58d;
-  --color-sage: #7a8565;
-  --color-terracotta: #9c6b55;
+  /* terracota: base, escuros para hover/profundidade e claro para fundo escuro */
+  --color-clay: #ca6032;
+  --color-clay-dark: #a64f29;
+  --color-clay-darker: #7d3b1f;
+  --color-clay-deep: #542815;
+  --color-clay-light: #f7753e;
 
   /* papéis do mural de bilhetinhos */
   --color-note-cream: #faf9f5;
@@ -29,8 +30,8 @@
   --color-note-terracotta-edge: #e8bfad;
   --color-note-sage-edge: #d0dac2;
 
-  --shadow-card: 0 1px 2px rgb(90 90 64 / 0.06), 0 12px 32px rgb(90 90 64 / 0.08);
-  --shadow-paper: 0 1px 3px rgb(90 90 64 / 0.05), 2px 4px 18px rgb(90 90 64 / 0.07);
+  --shadow-card: 0 1px 2px rgb(84 40 21 / 0.08), 0 12px 32px rgb(84 40 21 / 0.10);
+  --shadow-paper: 0 1px 3px rgb(84 40 21 / 0.06), 2px 4px 18px rgb(84 40 21 / 0.09);
 
   --ease-out-soft: cubic-bezier(0.2, 0, 0, 1);
 
@@ -83,11 +84,11 @@
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--color-olive) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-clay) 25%, transparent);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-olive);
+    outline: 2px solid var(--color-clay);
     outline-offset: 2px;
   }
 
@@ -106,5 +107,5 @@
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--color-olive);
+  color: var(--color-clay);
 }

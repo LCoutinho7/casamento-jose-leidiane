@@ -57,9 +57,9 @@ export function Story() {
 
       <ol ref={ref} className="relative mx-auto mt-20 max-w-5xl space-y-20 md:space-y-32">
         {/* trilho e traço percorrido, desenhado conforme o scroll */}
-        <span className="absolute top-8 bottom-8 left-1/2 hidden w-px -translate-x-1/2 bg-olive/15 md:block" aria-hidden />
+        <span className="absolute top-8 bottom-8 left-1/2 hidden w-px -translate-x-1/2 bg-clay/15 md:block" aria-hidden />
         <span
-          className="absolute top-8 bottom-8 left-1/2 hidden w-px origin-top -translate-x-1/2 bg-olive/50 will-change-transform md:block"
+          className="absolute top-8 bottom-8 left-1/2 hidden w-px origin-top -translate-x-1/2 bg-clay/50 will-change-transform md:block"
           style={{ transform: `translateX(-50%) scaleY(${progress})` }}
           aria-hidden
         />
@@ -70,27 +70,29 @@ export function Story() {
             className={cn('relative flex flex-col items-center gap-8 md:gap-16', index % 2 ? 'md:flex-row-reverse' : 'md:flex-row')}
           >
             <span
-              className="absolute top-1/2 left-1/2 hidden size-3 -translate-1/2 rounded-full border-2 border-olive bg-paper md:block"
+              className="absolute top-1/2 left-1/2 hidden size-3 -translate-1/2 rounded-full border-2 border-clay bg-paper md:block"
               aria-hidden
             />
 
             <Reveal className="w-full md:w-1/2">
-              <p className="font-mono text-xs tracking-[0.25em] text-olive uppercase">{chapter.date}</p>
+              <p className="font-mono text-xs tracking-[0.25em] text-clay uppercase">{chapter.date}</p>
               <h3 className="mt-3 text-3xl leading-tight text-ink sm:text-4xl">{chapter.title}</h3>
-              <blockquote className="my-5 border-l-2 border-olive pl-4 font-serif text-xl whitespace-pre-line text-olive italic">
+              <blockquote className="my-5 border-l-2 border-clay pl-4 font-serif text-xl whitespace-pre-line text-clay italic">
                 {chapter.quote}
               </blockquote>
               <p className="max-w-[60ch] leading-relaxed text-muted">{chapter.text}</p>
             </Reveal>
 
-            <Reveal as="figure" delay={120} className={cn('w-full md:w-1/2', chapter.portrait && 'md:max-w-sm')}>
+            {/* a coluna é sempre metade exata; quem encolhe é a foto, para que
+                o texto fique à mesma distância da linha central em todos os capítulos */}
+            <Reveal as="figure" delay={120} className="w-full md:w-1/2">
               <img
                 src={chapter.image}
                 alt={chapter.imageAlt}
                 loading="lazy"
                 className={cn(
-                  'w-full rounded-2xl border border-olive/15 object-cover shadow-card',
-                  chapter.portrait ? 'aspect-[3/4]' : 'aspect-[4/3]',
+                  'w-full rounded-2xl border border-clay/15 object-cover shadow-card',
+                  chapter.portrait ? 'aspect-[3/4] md:mx-auto md:max-w-sm' : 'aspect-[4/3]',
                 )}
               />
             </Reveal>

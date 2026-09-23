@@ -24,24 +24,24 @@ function NoteCard({ note, index }: { note: GuestNote; index: number }) {
         tilt[index % tilt.length],
       )}
     >
-      <span className="absolute -top-3 left-1/2 h-4 w-16 -translate-x-1/2 -rotate-1 rounded-xs border-y border-olive/30 bg-olive/15" aria-hidden />
+      <span className="absolute -top-3 left-1/2 h-4 w-16 -translate-x-1/2 -rotate-1 rounded-xs border-y border-clay/30 bg-clay/15" aria-hidden />
 
       <div>
-        <Quote className="size-5 text-olive/40" />
+        <Quote className="size-5 text-clay/40" />
         <p className="mt-3 font-serif text-lg leading-relaxed text-ink italic">"{note.message}"</p>
       </div>
 
       <div className="mt-5 flex items-end justify-between border-t border-ink/10 pt-4">
         <div>
           <p className="text-sm font-semibold text-ink">{note.author}</p>
-          <p className="font-mono text-[0.6875rem] text-olive">{formatDate(note.createdAt)}</p>
+          <p className="font-mono text-[0.6875rem] text-clay">{formatDate(note.createdAt)}</p>
         </div>
         {pending ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-olive/10 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-olive uppercase">
+          <span className="inline-flex items-center gap-1 rounded-full bg-clay/10 px-2.5 py-1 text-[0.625rem] font-semibold tracking-wider text-clay uppercase">
             <Clock className="size-3" /> Aguardando aprovação
           </span>
         ) : (
-          <Heart className="size-4 fill-current text-olive/60" />
+          <Heart className="size-4 fill-current text-clay/60" />
         )}
       </div>
     </li>
@@ -79,7 +79,7 @@ export function Guestbook() {
           ))}
         </ul>
       ) : (
-        <p className="mx-auto mt-16 max-w-md rounded-2xl border border-dashed border-olive/30 p-8 text-center text-sm text-muted">
+        <p className="mx-auto mt-16 max-w-md rounded-2xl border border-dashed border-clay/30 p-8 text-center text-sm text-muted">
           O mural ainda está vazio. Que tal pregar o primeiro bilhete?
         </p>
       )}

@@ -61,10 +61,10 @@ export function CountdownCard({ label, value, revealed, delay }: CountdownCardPr
   }, [counted, value]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-olive/15 bg-paper px-2 pt-7 pb-6 text-center sm:pt-9 sm:pb-8">
+    <div className="relative overflow-hidden rounded-2xl border border-clay/15 bg-paper px-2 pt-7 pb-6 text-center sm:pt-9 sm:pb-8">
       {/* picote da folhinha */}
-      <span className="absolute inset-x-0 top-4 border-t border-dashed border-olive/20" aria-hidden />
-      <span className="absolute top-2 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-olive/30" aria-hidden />
+      <span className="absolute inset-x-0 top-4 border-t border-dashed border-clay/20" aria-hidden />
+      <span className="absolute top-2 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-clay/30" aria-hidden />
 
       {revealed &&
         SHEETS.map((index) => (
@@ -78,14 +78,14 @@ export function CountdownCard({ label, value, revealed, delay }: CountdownCardPr
 
       <span
         className={cn(
-          'relative block font-mono text-4xl font-medium tracking-tight text-olive tabular-nums sm:text-6xl',
+          'relative block font-mono text-4xl font-medium tracking-tight text-clay tabular-nums sm:text-6xl',
           revealed && 'animate-rise-in motion-reduce:animate-none',
         )}
         style={revealed ? { animationDelay: `${delay}ms` } : undefined}
       >
         {pad(display)}
       </span>
-      <span className="relative mt-2 block text-[0.6875rem] font-semibold tracking-[0.2em] text-olive uppercase">
+      <span className="relative mt-2 block text-[0.6875rem] font-semibold tracking-[0.2em] text-clay uppercase">
         {label}
       </span>
     </div>
