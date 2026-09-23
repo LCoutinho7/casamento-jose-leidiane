@@ -1,5 +1,6 @@
 import { Footer } from './components/layout/Footer';
 import { Navbar } from './components/layout/Navbar';
+import { ScrollProgress } from './components/layout/ScrollProgress';
 import { Countdown } from './components/sections/Countdown';
 import { EventDetails } from './components/sections/EventDetails';
 import { Faq } from './components/sections/Faq';
@@ -15,6 +16,7 @@ import { Welcome } from './components/sections/Welcome';
 export default function App() {
   return (
     <>
+      <ScrollProgress />
       <Navbar />
       <main>
         <Hero />

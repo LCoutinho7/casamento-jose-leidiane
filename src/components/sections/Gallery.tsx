@@ -4,6 +4,7 @@ import { GALLERY } from '../../data/wedding';
 import { cn } from '../../lib/cn';
 import { pad } from '../../lib/format';
 import type { GalleryCategory } from '../../types';
+import { Reveal } from '../ui/Reveal';
 import { SectionHeading } from '../ui/SectionHeading';
 
 type Filter = GalleryCategory | 'todas';
@@ -45,7 +46,9 @@ export function Gallery() {
 
   return (
     <section id="galeria" className="bg-sand/50 px-6 py-24 md:px-10 md:py-32">
-      <SectionHeading eyebrow="Fotos" title="Nossos momentos" description="Instantes que guardam o riso leve e a verdade dos nossos dias." />
+      <Reveal>
+        <SectionHeading eyebrow="Fotos" title="Nossos momentos" description="Instantes que guardam o riso leve e a verdade dos nossos dias." />
+      </Reveal>
 
       <div className="mt-10 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Filtrar fotos">
         {filters.map((f) => (

@@ -37,6 +37,20 @@
   --animate-fade-in: fade-in 200ms var(--ease-out-soft) both;
   --animate-rise-in: rise-in 280ms var(--ease-out-soft) both;
   --animate-sheet-fly: sheet-fly 700ms cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-reveal-up: reveal-up 560ms var(--ease-out-soft) both;
+  --animate-reveal-mask: reveal-mask 900ms var(--ease-out-soft) both;
+
+  /* entrada de bloco ao aparecer na viewport */
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* título que se descobre de baixo para cima, sem "digitar" */
+  @keyframes reveal-mask {
+    from { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(12px); }
+    to { opacity: 1; clip-path: inset(0 0 -10% 0); transform: none; }
+  }
 
   /* folha de calendário se soltando do picote */
   @keyframes sheet-fly {
