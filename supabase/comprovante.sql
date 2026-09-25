@@ -1,11 +1,11 @@
 -- E-mail do convidado no aviso de presente + comprovante quando os noivos confirmam.
 -- Rodar depois de schema.sql e notificacao-email.sql.
 
--- Limpa avisos antigos sem e-mail para poder exigir a coluna.
-delete from public.pledges where guest_email is null and status = 'announced' and created_at < now();
-
 alter table public.pledges
   add column if not exists guest_email text;
+
+-- Avisos anteriores à mudança não têm e-mail; sem isso o NOT NULL abaixo falha.
+delete from public.pledges where guest_email is null;
 
 alter table public.pledges
   drop constraint if exists pledges_guest_email_check;

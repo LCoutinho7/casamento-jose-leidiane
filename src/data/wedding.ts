@@ -2,7 +2,9 @@ import type { FaqItem, GalleryPhoto, GiftQuota, StoryChapter, Venue } from '../t
 
 export const WEDDING_DATE = new Date('2027-01-16T16:30:00-03:00');
 export const WEDDING_DATE_LABEL = '16 de janeiro de 2027';
-export const RSVP_DEADLINE_LABEL = '16 de dezembro de 2026';
+// Prazo final definido pelos noivos; depois dele o buffet é fechado.
+export const RSVP_DEADLINE = new Date('2026-11-30T23:59:59-03:00');
+export const RSVP_DEADLINE_LABEL = '30 de novembro de 2026';
 
 export const COUPLE = {
   groom: 'José',
@@ -129,7 +131,7 @@ export const GIFT_QUOTAS: GiftQuota[] = [
 export const FAQ: FaqItem[] = [
   {
     question: 'Até quando devo confirmar minha presença?',
-    answer: `Pedimos que a confirmação seja feita até ${RSVP_DEADLINE_LABEL}, para organizarmos buffet e acomodações com tranquilidade.`,
+    answer: `A confirmação precisa ser feita até ${RSVP_DEADLINE_LABEL}. Depois dessa data fechamos os números com o buffet e não conseguimos incluir novos convidados.`,
   },
   {
     question: 'Posso levar acompanhante?',
