@@ -161,6 +161,7 @@ export function Admin() {
               <p className="font-mono text-lg text-clay">{formatCurrency(pledge.amount)}</p>
               <p className="mt-1 text-ink">{pledge.gift_name}</p>
               <p className="mt-2 text-sm font-semibold text-ink">{pledge.guest_name}</p>
+              <p className="font-mono text-xs text-muted">{pledge.guest_email}</p>
               {pledge.message && <p className="mt-1 text-sm text-muted italic">"{pledge.message}"</p>}
               <p className="font-mono text-xs text-clay">
                 {formatDate(pledge.created_at)} · {pledge.status === 'received' ? 'recebido' : 'aguardando confirmação'}

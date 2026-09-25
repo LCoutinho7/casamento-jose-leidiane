@@ -37,6 +37,7 @@ export function createPledge(pledge: {
   gift_name: string;
   amount: number;
   guest_name: string;
+  guest_email: string;
   message?: string;
 }) {
   return rest('pledges', { method: 'POST', body: JSON.stringify(pledge) });

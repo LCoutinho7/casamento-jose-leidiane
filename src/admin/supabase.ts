@@ -17,6 +17,7 @@ export interface PledgeRow {
   gift_name: string;
   amount: number;
   guest_name: string;
+  guest_email: string;
   message: string | null;
   status: 'announced' | 'received';
   created_at: string;

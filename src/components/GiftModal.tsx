@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Check, Copy, Send } from 'lucide-react';
+import { ArrowRight, Check, Copy } from 'lucide-react';
 import { COUPLE } from '../data/wedding';
 import { createPledge } from '../lib/api';
 import { formatCurrency } from '../lib/format';
@@ -42,42 +42,20 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 export function GiftModal({ gift, onClose }: GiftModalProps) {
   const [amount, setAmount] = useState(gift?.price ?? 0);
   const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [released, setReleased] = useState(false);
   const [error, setError] = useState('');
 
-  // Cada cota abre com o próprio valor sugerido.
+  // Cada cota abre limpa, com o próprio valor sugerido.
   useEffect(() => {
     if (gift) {
       setAmount(gift.price);
-      setSent(false);
+      setReleased(false);
       setError('');
     }
   }, [gift]);
-
-  const announce = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!gift || !guestName.trim()) return;
-    setSending(true);
-    setError('');
-    try {
-      await createPledge({
-        gift_id: gift.id,
-        gift_name: gift.name,
-        amount,
-        guest_name: guestName.trim(),
-        message: note.trim() || undefined,
-      });
-      setSent(true);
-      setGuestName('');
-      setNote('');
-    } catch (e) {
-      setError(e instanceof Error && e.message.includes('limite') ? 'Muitos avisos enviados hoje deste dispositivo.' : 'Não conseguimos avisar os noivos. Tente de novo.');
-    } finally {
-      setSending(false);
-    }
-  };
 
   const validAmount = amount >= MIN_AMOUNT;
 
@@ -93,6 +71,32 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
       txid: gift.id,
     });
 
+  const release = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!gift || !validAmount) return;
+    setSending(true);
+    setError('');
+    try {
+      await createPledge({
+        gift_id: gift.id,
+        gift_name: gift.name,
+        amount,
+        guest_name: guestName.trim(),
+        guest_email: guestEmail.trim(),
+        message: note.trim() || undefined,
+      });
+      setReleased(true);
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message.includes('limite')
+          ? 'Muitos presentes registrados hoje neste dispositivo. Tente amanhã.'
+          : 'Não conseguimos registrar agora. Tente de novo.',
+      );
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <Modal open={gift !== null} onClose={onClose} title="Presentear os noivos">
       {gift && (
@@ -102,75 +106,80 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
           {!gift.customAmount && <p className="mt-1 font-mono text-xl text-clay">{formatCurrency(gift.price)}</p>}
           <p className="mt-4 text-sm leading-relaxed text-muted">{gift.description}</p>
 
-          {gift.customAmount && (
-            <div className="mt-6">
-              <Input
-                label="Valor do presente (R$)"
-                name="amount"
-                type="number"
-                inputMode="decimal"
-                min={MIN_AMOUNT}
-                step={10}
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
-                hint={`mínimo ${formatCurrency(MIN_AMOUNT)}`}
-              />
-            </div>
-          )}
-
-          <div className="mt-8 space-y-5 border-t border-clay/15 pt-6">
-            {COUPLE.pixKey ? (
-              payload ? (
-                <>
-                  <CopyRow label="PIX copia e cola (valor já preenchido)" value={payload} />
-                  <CopyRow label="Ou use a chave PIX" value={COUPLE.pixKey} />
-                  <p className="text-xs leading-relaxed text-muted">
-                    Cole no app do seu banco. Favorecidos: {COUPLE.groom} e {COUPLE.bride}.
-                  </p>
-
-                  {sent ? (
-                    <p className="flex items-center gap-2 rounded-xl bg-sand/60 p-4 text-sm text-ink">
-                      <Check className="size-4 shrink-0 text-clay" />
-                      Avisamos os noivos. Obrigado pelo carinho!
-                    </p>
-                  ) : (
-                    <form onSubmit={announce} className="space-y-4 border-t border-clay/15 pt-5">
-                      <p className="text-xs leading-relaxed text-muted">
-                        Já enviou? Avise os noivos para que eles saibam de quem veio.
-                      </p>
-                      <Input
-                        label="Seu nome ou família"
-                        name="guest_name"
-                        required
-                        value={guestName}
-                        onChange={(e) => setGuestName(e.target.value)}
-                        placeholder="Ex.: Família Coutinho"
-                      />
-                      <Textarea
-                        label="Recado (opcional)"
-                        name="pledge_message"
-                        rows={2}
-                        maxLength={300}
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        placeholder="Uma palavrinha para acompanhar o presente..."
-                      />
-                      {error && <p className="text-sm text-clay-dark">{error}</p>}
-                      <Button type="submit" size="lg" disabled={!guestName.trim() || sending} className="w-full">
-                        <Send className="size-4" /> {sending ? 'Enviando' : 'Avisar os noivos'}
-                      </Button>
-                    </form>
-                  )}
-                </>
-              ) : (
-                <p className="text-sm text-muted">Informe um valor a partir de {formatCurrency(MIN_AMOUNT)} para gerar o PIX.</p>
-              )
-            ) : (
-              <p className="rounded-xl bg-sand/60 p-4 text-sm text-muted">
-                A chave PIX dos noivos será divulgada em breve. Enquanto isso, a lista de presentes já está disponível.
+          {!COUPLE.pixKey ? (
+            <p className="mt-8 rounded-xl bg-sand/60 p-4 text-sm text-muted">
+              A chave PIX dos noivos será divulgada em breve.
+            </p>
+          ) : released && payload ? (
+            <div className="mt-8 space-y-5 border-t border-clay/15 pt-6">
+              <CopyRow label="PIX copia e cola (valor já preenchido)" value={payload} />
+              <CopyRow label="Ou use a chave PIX" value={COUPLE.pixKey} />
+              <p className="text-xs leading-relaxed text-muted">
+                Cole no app do seu banco. Favorecidos: {COUPLE.groom} e {COUPLE.bride}.
               </p>
-            )}
-          </div>
+              <p className="flex items-start gap-2 rounded-xl bg-sand/60 p-4 text-sm text-ink">
+                <Check className="mt-0.5 size-4 shrink-0 text-clay" />
+                Assim que os noivos confirmarem o recebimento, você recebe a confirmação em{' '}
+                <strong className="font-semibold">{guestEmail}</strong>.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={release} className="mt-8 space-y-4 border-t border-clay/15 pt-6">
+              <p className="text-sm leading-relaxed text-muted">
+                Preencha seus dados para gerar o PIX. Usamos o e-mail só para confirmar o recebimento com você.
+              </p>
+
+              {gift.customAmount && (
+                <Input
+                  label="Valor do presente (R$)"
+                  name="amount"
+                  type="number"
+                  inputMode="decimal"
+                  min={MIN_AMOUNT}
+                  step={10}
+                  required
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
+                  hint={`mínimo ${formatCurrency(MIN_AMOUNT)}`}
+                />
+              )}
+
+              <Input
+                label="Seu nome ou família"
+                name="guest_name"
+                required
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder="Ex.: Família Coutinho"
+              />
+
+              <Input
+                label="Seu e-mail"
+                name="guest_email"
+                type="email"
+                required
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                placeholder="para receber a confirmação"
+              />
+
+              <Textarea
+                label="Recado (opcional)"
+                name="pledge_message"
+                rows={2}
+                maxLength={300}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Uma palavrinha para acompanhar o presente..."
+              />
+
+              {error && <p className="text-sm text-clay-dark">{error}</p>}
+
+              <Button type="submit" size="lg" disabled={sending || !validAmount} className="w-full">
+                {sending ? 'Gerando' : 'Gerar PIX'} <ArrowRight className="size-4" />
+              </Button>
+            </form>
+          )}
         </>
       )}
     </Modal>
