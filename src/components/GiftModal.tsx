@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Check, Copy } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Check, Copy, Send } from 'lucide-react';
 import { COUPLE } from '../data/wedding';
+import { createPledge } from '../lib/api';
 import { formatCurrency } from '../lib/format';
 import { buildPixPayload } from '../lib/pix';
 import type { GiftQuota } from '../types';
 import { Button } from './ui/Button';
-import { Input } from './ui/Field';
+import { Input, Textarea } from './ui/Field';
 import { Modal } from './ui/Modal';
 
 interface GiftModalProps {
@@ -40,11 +41,43 @@ function CopyRow({ label, value }: { label: string; value: string }) {
 
 export function GiftModal({ gift, onClose }: GiftModalProps) {
   const [amount, setAmount] = useState(gift?.price ?? 0);
+  const [guestName, setGuestName] = useState('');
+  const [note, setNote] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
 
   // Cada cota abre com o próprio valor sugerido.
   useEffect(() => {
-    if (gift) setAmount(gift.price);
+    if (gift) {
+      setAmount(gift.price);
+      setSent(false);
+      setError('');
+    }
   }, [gift]);
+
+  const announce = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!gift || !guestName.trim()) return;
+    setSending(true);
+    setError('');
+    try {
+      await createPledge({
+        gift_id: gift.id,
+        gift_name: gift.name,
+        amount,
+        guest_name: guestName.trim(),
+        message: note.trim() || undefined,
+      });
+      setSent(true);
+      setGuestName('');
+      setNote('');
+    } catch (e) {
+      setError(e instanceof Error && e.message.includes('limite') ? 'Muitos avisos enviados hoje deste dispositivo.' : 'Não conseguimos avisar os noivos. Tente de novo.');
+    } finally {
+      setSending(false);
+    }
+  };
 
   const validAmount = amount >= MIN_AMOUNT;
 
@@ -92,9 +125,42 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
                   <CopyRow label="PIX copia e cola (valor já preenchido)" value={payload} />
                   <CopyRow label="Ou use a chave PIX" value={COUPLE.pixKey} />
                   <p className="text-xs leading-relaxed text-muted">
-                    Cole no app do seu banco e, se quiser, mande uma mensagem para os noivos dizendo qual cota
-                    escolheu. Favorecidos: {COUPLE.groom} e {COUPLE.bride}.
+                    Cole no app do seu banco. Favorecidos: {COUPLE.groom} e {COUPLE.bride}.
                   </p>
+
+                  {sent ? (
+                    <p className="flex items-center gap-2 rounded-xl bg-sand/60 p-4 text-sm text-ink">
+                      <Check className="size-4 shrink-0 text-clay" />
+                      Avisamos os noivos. Obrigado pelo carinho!
+                    </p>
+                  ) : (
+                    <form onSubmit={announce} className="space-y-4 border-t border-clay/15 pt-5">
+                      <p className="text-xs leading-relaxed text-muted">
+                        Já enviou? Avise os noivos para que eles saibam de quem veio.
+                      </p>
+                      <Input
+                        label="Seu nome ou família"
+                        name="guest_name"
+                        required
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder="Ex.: Família Coutinho"
+                      />
+                      <Textarea
+                        label="Recado (opcional)"
+                        name="pledge_message"
+                        rows={2}
+                        maxLength={300}
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        placeholder="Uma palavrinha para acompanhar o presente..."
+                      />
+                      {error && <p className="text-sm text-clay-dark">{error}</p>}
+                      <Button type="submit" size="lg" disabled={!guestName.trim() || sending} className="w-full">
+                        <Send className="size-4" /> {sending ? 'Enviando' : 'Avisar os noivos'}
+                      </Button>
+                    </form>
+                  )}
                 </>
               ) : (
                 <p className="text-sm text-muted">Informe um valor a partir de {formatCurrency(MIN_AMOUNT)} para gerar o PIX.</p>

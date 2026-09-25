@@ -1,15 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock, Heart, MessageSquarePlus, Quote } from 'lucide-react';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { createNote, fetchApprovedNotes } from '../../lib/api';
 import { cn } from '../../lib/cn';
 import { formatDate } from '../../lib/format';
 import type { GuestNote } from '../../types';
 import { NoteModal, paperStyles } from '../NoteModal';
 import { Button } from '../ui/Button';
 import { SectionHeading } from '../ui/SectionHeading';
-
-// Bilhetes aprovados pelos noivos. Até o painel de moderação existir, a lista fica aqui.
-const APPROVED_NOTES: GuestNote[] = [];
 
 // Rotação fixa por posição: dá o ar de mural sem depender de aleatoriedade no render.
 const tilt = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'];
@@ -50,13 +47,26 @@ function NoteCard({ note, index }: { note: GuestNote; index: number }) {
 
 export function Guestbook() {
   const [open, setOpen] = useState(false);
-  const [myNotes, setMyNotes] = useLocalStorage<GuestNote[]>('guestbook:pending', []);
+  const [notes, setNotes] = useState<GuestNote[]>([]);
+  // Bilhete recém-enviado: fica visível só para quem escreveu, até os noivos aprovarem.
+  const [mine, setMine] = useState<GuestNote[]>([]);
+  const [error, setError] = useState('');
 
-  const notes = [...myNotes, ...APPROVED_NOTES];
+  useEffect(() => {
+    fetchApprovedNotes().then(setNotes).catch(() => setError('Não foi possível carregar o mural agora.'));
+  }, []);
 
-  const addNote = (note: Omit<GuestNote, 'id' | 'createdAt' | 'status'>) => {
-    setMyNotes((prev) => [{ ...note, id: crypto.randomUUID(), createdAt: new Date().toISOString(), status: 'pending' }, ...prev]);
+  const addNote = async (note: { author: string; message: string; paper: GuestNote['paper'] }) => {
+    setError('');
+    try {
+      await createNote(note);
+      setMine((prev) => [{ ...note, id: crypto.randomUUID(), createdAt: new Date().toISOString(), status: 'pending' }, ...prev]);
+    } catch (e) {
+      setError(e instanceof Error && e.message.includes('limite') ? 'Você já enviou bilhetes demais hoje. Volte amanhã!' : 'Não conseguimos enviar seu bilhete. Tente de novo.');
+    }
   };
+
+  const board = [...mine, ...notes];
 
   return (
     <section id="bilhetinhos" className="px-6 py-24 md:px-10 md:py-32">
@@ -70,11 +80,12 @@ export function Guestbook() {
         <Button size="lg" onClick={() => setOpen(true)}>
           <MessageSquarePlus className="size-4" /> Escrever um bilhetinho
         </Button>
+        {error && <p className="mt-4 text-sm text-clay-dark">{error}</p>}
       </div>
 
-      {notes.length > 0 ? (
+      {board.length > 0 ? (
         <ul className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {notes.map((note, i) => (
+          {board.map((note, i) => (
             <NoteCard key={note.id} note={note} index={i} />
           ))}
         </ul>
