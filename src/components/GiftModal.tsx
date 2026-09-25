@@ -87,10 +87,11 @@ export function GiftModal({ gift, onClose }: GiftModalProps) {
       });
       setReleased(true);
     } catch (e) {
+      const detalhe = e instanceof Error ? e.message : '';
       setError(
-        e instanceof Error && e.message.includes('limite')
+        detalhe.includes('limite')
           ? 'Muitos presentes registrados hoje neste dispositivo. Tente amanhã.'
-          : 'Não conseguimos registrar agora. Tente de novo.',
+          : `Não conseguimos registrar agora. Tente de novo. (${detalhe || 'erro desconhecido'})`,
       );
     } finally {
       setSending(false);
