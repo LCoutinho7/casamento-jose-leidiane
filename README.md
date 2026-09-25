@@ -70,4 +70,3 @@ Todo push na `main` roda o workflow em `.github/workflows/deploy.yml`, que publi
 - [ ] RSVP com busca do convite pelo nome e confirmação individual de cada acompanhante (a lista de convidados está sendo fechada em planilha).
 - [ ] Painel simples para os noivos aprovarem ou recusarem os bilhetinhos. Vai exigir uma API pequena em Node.js com banco gratuito; até lá os bilhetes ficam locais.
 - [ ] Local, horário, chave PIX, WhatsApp e link da lista de presentes, assim que os noivos confirmarem.
-- [ ] Domínio próprio.

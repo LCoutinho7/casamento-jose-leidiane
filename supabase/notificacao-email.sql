@@ -35,7 +35,7 @@ begin
     url := 'https://api.resend.com/emails',
     headers := jsonb_build_object('Authorization', 'Bearer ' || api_key, 'Content-Type', 'application/json'),
     body := jsonb_build_object(
-      'from', 'Casamento J&L <onboarding@resend.dev>',
+      'from', 'Casamento J&L <noivos@casamentoleidize.com.br>',
       'to', array[destino],
       'subject', assunto,
       'html', corpo || '<p><a href="https://casamentoleidize.com.br/admin.html">Abrir a moderação</a></p>'

@@ -35,7 +35,7 @@ begin
     url := 'https://api.resend.com/emails',
     headers := jsonb_build_object('Authorization', 'Bearer ' || api_key, 'Content-Type', 'application/json'),
     body := jsonb_build_object(
-      'from', 'José & Leidiane <onboarding@resend.dev>',
+      'from', 'José & Leidiane <noivos@casamentoleidize.com.br>',
       'to', array[new.guest_email],
       'subject', 'Recebemos o seu presente, ' || new.guest_name || '!',
       'html', public.receipt_html(new.guest_name, new.gift_name, new.amount)

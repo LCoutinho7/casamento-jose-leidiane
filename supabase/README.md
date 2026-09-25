@@ -14,7 +14,7 @@ Projeto `nxxfvtzdvvnvrlyevfzk`. O site usa a chave publicável e só enxerga o q
    select vault.create_secret('destinatario@exemplo.com', 'notify_email');
    ```
 
-   Sem domínio próprio, o Resend só entrega para o e-mail dono da conta. Quando o domínio do casamento existir, trocar o `from` em `notificacao-email.sql`.
+   O domínio `casamentoleidize.com.br` está verificado no Resend (região São Paulo), então os e-mails saem de `noivos@casamentoleidize.com.br` para qualquer destinatário.
 
 ## Regras que valem
 
@@ -26,4 +26,4 @@ Projeto `nxxfvtzdvvnvrlyevfzk`. O site usa a chave publicável e só enxerga o q
 
 ## Painel
 
-`admin.html`, publicado junto com o site: <https://lcoutinho7.github.io/casamento-jose-leidiane/admin.html>. Sem link no site, com `noindex` — o que protege é o login, não o segredo do endereço.
+`admin.html`, publicado junto com o site: <https://casamentoleidize.com.br/admin.html>. Sem link no site, com `noindex` — o que protege é o login, não o segredo do endereço.
