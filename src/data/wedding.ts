@@ -11,11 +11,11 @@ export const COUPLE = {
   brideNickname: 'Leidi',
   monogram: 'J&L',
   city: 'Osasco, SP',
-  // Contato e chave PIX serão substituídos pelos dados reais dos noivos.
-  whatsapp: '',
-  pixKey: '',
-  // Link da lista criada no Magazine Luiza (Quero de Casamento).
-  giftListUrl: '',
+  whatsappGroom: '5511915546376',
+  whatsappBride: '5511980571098',
+  pixKey: 'leidieze@gmail.com',
+  // Lista no Quero de Casamento (Magazine Luiza).
+  giftListUrl: 'https://www.finalfeliz.de/leidieze',
 };
 
 export const VENUES: { ceremony?: Venue; reception?: Venue } = {

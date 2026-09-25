@@ -3,13 +3,14 @@ import { COUPLE } from '../../data/wedding';
 import { LinkButton } from '../ui/Button';
 import { SectionHeading } from '../ui/SectionHeading';
 
-const whatsappMessage = 'Olá! Estou no site do casamento de Zé e Leidi e tenho uma dúvida.';
+const message = encodeURIComponent('Olá! Estou no site do casamento de Zé e Leidi e tenho uma dúvida.');
+
+const contacts = [
+  { label: `Falar com ${COUPLE.groomNickname}`, href: `https://wa.me/${COUPLE.whatsappGroom}?text=${message}` },
+  { label: `Falar com ${COUPLE.brideNickname}`, href: `https://wa.me/${COUPLE.whatsappBride}?text=${message}` },
+];
 
 export function GuestGuide() {
-  const whatsappUrl = COUPLE.whatsapp
-    ? `https://wa.me/${COUPLE.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`
-    : null;
-
   return (
     <section id="informacoes" className="bg-sand/50 px-6 py-24 md:px-10 md:py-32">
       <SectionHeading eyebrow="Guia dos convidados" title="O que você precisa saber" />
@@ -38,13 +39,13 @@ export function GuestGuide() {
               Caso não tenha a resposta nas Perguntas Frequentes, fale com os noivos.
             </p>
           </div>
-          {whatsappUrl ? (
-            <LinkButton href={whatsappUrl} target="_blank" rel="noopener noreferrer" variant="light" className="mt-8">
-              Falar no WhatsApp
-            </LinkButton>
-          ) : (
-            <p className="mt-8 font-mono text-xs tracking-widest text-sand uppercase">Contato em breve</p>
-          )}
+          <div className="mt-8 flex flex-col gap-3">
+            {contacts.map((contact) => (
+              <LinkButton key={contact.href} href={contact.href} target="_blank" rel="noopener noreferrer" variant="light">
+                {contact.label}
+              </LinkButton>
+            ))}
+          </div>
         </article>
       </div>
     </section>
