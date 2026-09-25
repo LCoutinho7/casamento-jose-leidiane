@@ -8,8 +8,11 @@ const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`,
 
 async function rest(path: string, init?: RequestInit) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { ...init, headers: { ...headers, ...init?.headers } });
-  if (!response.ok) throw new Error((await response.json().catch(() => null))?.message ?? 'Falha na comunicação');
-  return response.status === 204 ? null : response.json();
+  // POST sem Prefer: return=representation responde 201 sem corpo, então nada de json() direto.
+  const body = await response.text();
+  const parsed = body ? JSON.parse(body) : null;
+  if (!response.ok) throw new Error(parsed?.message ?? 'Falha na comunicação');
+  return parsed;
 }
 
 interface NoteRow {
