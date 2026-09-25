@@ -63,7 +63,7 @@ Quase toda alteração de conteúdo acontece em `src/data/wedding.ts`. Quando os
 
 ## Deploy
 
-Todo push na `main` roda o workflow em `.github/workflows/deploy.yml`, que faz o build com `BASE_PATH=/<nome-do-repo>/` e publica o `dist/` no GitHub Pages. Quando o domínio próprio entrar, é só remover essa variável do workflow e apontar o DNS.
+Todo push na `main` roda o workflow em `.github/workflows/deploy.yml`, que publica o `dist/` no GitHub Pages. O domínio é `casamentoleidize.com.br`, definido em `public/CNAME`.
 
 ## Próximos passos
 

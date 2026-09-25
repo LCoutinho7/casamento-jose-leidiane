@@ -38,7 +38,7 @@ begin
       'from', 'Casamento J&L <onboarding@resend.dev>',
       'to', array[destino],
       'subject', assunto,
-      'html', corpo || '<p><a href="https://lcoutinho7.github.io/casamento-jose-leidiane/admin.html">Abrir a moderação</a></p>'
+      'html', corpo || '<p><a href="https://casamentoleidize.com.br/admin.html">Abrir a moderação</a></p>'
     )
   );
 
