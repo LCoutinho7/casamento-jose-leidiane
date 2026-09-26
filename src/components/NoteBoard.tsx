@@ -68,8 +68,10 @@ export function NoteBoard({ notes, children }: NoteBoardProps) {
           isDesktop
             ? 'grid animate-fade-in grid-cols-3 gap-8'
             : // o padding de 10vw é metade da sobra de um card de 80vw: com ele o
-              // primeiro e o último bilhete também param no centro da tela
-              '-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[10vw] pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+              // primeiro e o último bilhete também param no centro da tela.
+              // O py-6 dá espaço para a fita, a rotação e a sombra: com overflow-x
+              // o eixo vertical também vira rolável e cortaria as pontas.
+              '-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[10vw] py-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         )}
       >
         {visible.map((note, i) => (
