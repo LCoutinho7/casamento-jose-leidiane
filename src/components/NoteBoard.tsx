@@ -65,14 +65,15 @@ export function NoteBoard({ notes, children }: NoteBoardProps) {
         ref={track}
         key={isDesktop ? page : 'mobile'}
         className={cn(
-          'gap-8',
           isDesktop
-            ? 'grid animate-fade-in grid-cols-3'
-            : '-mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+            ? 'grid animate-fade-in grid-cols-3 gap-8'
+            : // o padding de 10vw é metade da sobra de um card de 80vw: com ele o
+              // primeiro e o último bilhete também param no centro da tela
+              '-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[10vw] pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         )}
       >
         {visible.map((note, i) => (
-          <li key={note.id} className={cn(!isDesktop && 'w-[82vw] shrink-0 snap-start')}>
+          <li key={note.id} className={cn(!isDesktop && 'w-[80vw] shrink-0 snap-center')}>
             {children(note, i)}
           </li>
         ))}
