@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { ExternalLink, Gift, QrCode } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, ExternalLink, Gift, QrCode } from 'lucide-react';
 import { GIFT_LISTS, GIFT_QUOTAS } from '../../data/wedding';
+import { cn } from '../../lib/cn';
 import { formatCurrency } from '../../lib/format';
 import type { GiftQuota } from '../../types';
 import { GiftModal } from '../GiftModal';
@@ -9,8 +10,28 @@ import { Reveal } from '../ui/Reveal';
 import { SectionHeading } from '../ui/SectionHeading';
 import { TiltCard } from '../ui/TiltCard';
 
+// Abaixo de lg a lista começa recortada; no desktop cabe tudo na tela.
+const VISIBLE_ON_SMALL = 4;
+
 export function Gifts() {
   const [selected, setSelected] = useState<GiftQuota | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const quotas = useRef<HTMLUListElement>(null);
+  const hidden = GIFT_QUOTAS.length - VISIBLE_ON_SMALL;
+
+  // Ao recolher, a lista encurta e o visitante pode ficar abaixo dela. O ajuste
+  // roda depois do commit, quando o layout já reflete a lista menor.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const list = quotas.current;
+    if (!expanded && list && list.getBoundingClientRect().top < 0) {
+      list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [expanded]);
 
   return (
     <section id="presentes" className="bg-sand/50 px-6 py-24 md:px-10 md:py-32">
@@ -61,9 +82,9 @@ export function Gifts() {
         </article>
       </div>
 
-      <ul className="mx-auto mt-6 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {GIFT_QUOTAS.map((gift) => (
-          <li key={gift.id}>
+      <ul id="cotas-pix" ref={quotas} className="mx-auto mt-6 grid max-w-5xl scroll-mt-24 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {GIFT_QUOTAS.map((gift, index) => (
+          <li key={gift.id} className={cn(!expanded && index >= VISIBLE_ON_SMALL && 'hidden lg:block')}>
             <TiltCard className="h-full">
               <div className="flex h-full flex-col justify-between rounded-2xl border border-clay/15 bg-paper p-6 shadow-paper transition-[border-color,box-shadow] duration-150 ease-out-soft hover:border-clay/40 hover:shadow-card">
                 <div>
@@ -83,6 +104,28 @@ export function Gifts() {
           </li>
         ))}
       </ul>
+
+      {hidden > 0 && (
+        <div className="mt-8 text-center lg:hidden">
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => setExpanded((open) => !open)}
+            aria-expanded={expanded}
+            aria-controls="cotas-pix"
+          >
+            {expanded ? (
+              <>
+                Ver menos <ChevronUp className="size-4" />
+              </>
+            ) : (
+              <>
+                Ver mais presentes (+{hidden} opções) <ChevronDown className="size-4" />
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       <GiftModal gift={selected} onClose={() => setSelected(null)} />
     </section>
