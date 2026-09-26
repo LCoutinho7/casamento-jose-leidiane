@@ -16,9 +16,15 @@ export const COUPLE = {
   whatsappGroom: '5511915546376',
   whatsappBride: '5511980571098',
   pixKey: 'leidieze@gmail.com',
-  // Lista no Quero de Casamento (Magazine Luiza).
-  giftListUrl: 'https://www.finalfeliz.de/leidieze',
+  pixHolder: 'José Rubens Ferraz Junior',
 };
+
+export const GIFT_LISTS: { store: string; url: string }[] = [
+  { store: 'Magazine Luiza', url: 'https://www.finalfeliz.de/leidieze' },
+  { store: 'Zelo', url: 'https://www.zelo.com.br/lista-de-desejo/lista-de-casamento/produtos/c4182ab3-9127-461d-a794-8f5fa88d3197' },
+  // Havan: link a receber dos noivos.
+  { store: 'Havan', url: '' },
+];
 
 export const VENUES: { ceremony?: Venue; reception?: Venue } = {
   ceremony: {

@@ -1,5 +1,5 @@
 -- Notificação por e-mail via Resend, disparada no banco (sem Edge Function).
--- Rodar DEPOIS de schema.sql e de guardar a chave do Resend:
+-- Rodar DEPOIS de schema.sql e aviso-html.sql, e de guardar a chave do Resend:
 --
 --   select vault.create_secret('re_sua_chave_aqui', 'resend_api_key');
 --   select vault.create_secret('destinatario@exemplo.com', 'notify_email');
@@ -24,11 +24,24 @@ begin
 
   if tg_table_name = 'notes' then
     assunto := 'Novo bilhetinho de ' || new.author;
-    corpo := '<p><strong>' || new.author || '</strong> escreveu:</p><blockquote>' || new.message || '</blockquote>';
+    corpo := public.notice_html(
+      'Bilhete aguardando aprovação',
+      new.author || ' deixou um recado',
+      new.message,
+      jsonb_build_array(jsonb_build_object('label', 'Papel escolhido', 'value', initcap(new.paper)))
+    );
   else
     assunto := 'Presente anunciado por ' || new.guest_name;
-    corpo := '<p><strong>' || new.guest_name || '</strong> avisou o envio de ' || new.gift_name ||
-             ' (R$ ' || new.amount || ').</p>' || coalesce('<blockquote>' || new.message || '</blockquote>', '');
+    corpo := public.notice_html(
+      'Presente anunciado',
+      new.guest_name || ' avisou o envio de um presente',
+      new.message,
+      jsonb_build_array(
+        jsonb_build_object('label', 'Presente', 'value', new.gift_name),
+        jsonb_build_object('label', 'Valor', 'value', 'R$ ' || to_char(new.amount, 'FM999G999D00')),
+        jsonb_build_object('label', 'E-mail do convidado', 'value', new.guest_email)
+      )
+    );
   end if;
 
   perform net.http_post(
@@ -38,7 +51,7 @@ begin
       'from', 'Casamento J&L <noivos@casamentoleidize.com.br>',
       'to', array[destino],
       'subject', assunto,
-      'html', corpo || '<p><a href="https://casamentoleidize.com.br/admin.html">Abrir a moderação</a></p>'
+      'html', corpo
     )
   );
 

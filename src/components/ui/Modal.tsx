@@ -9,10 +9,12 @@ interface ModalProps {
   children: ReactNode;
   /** Classe de fundo do cartão; permite pré-visualizar a cor escolhida. */
   surfaceClassName?: string;
+  /** Troca a animação de entrada pela de confirmação (o cartão afunda e volta). */
+  pressing?: boolean;
 }
 
 /** Diálogo modal com fechamento por Esc, clique no fundo e botão. */
-export function Modal({ open, onClose, title, children, surfaceClassName }: ModalProps) {
+export function Modal({ open, onClose, title, children, surfaceClassName, pressing }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -37,7 +39,8 @@ export function Modal({ open, onClose, title, children, surfaceClassName }: Moda
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
         className={cn(
-          'relative my-8 w-full max-w-lg rounded-2xl border border-clay/15 p-6 shadow-card animate-rise-in transition-colors duration-200 ease-out-soft sm:p-8',
+          'relative my-8 w-full max-w-lg rounded-2xl border border-clay/15 p-6 shadow-card transition-colors duration-200 ease-out-soft sm:p-8',
+          pressing ? 'animate-press' : 'animate-rise-in',
           surfaceClassName ?? 'bg-paper',
         )}
       >

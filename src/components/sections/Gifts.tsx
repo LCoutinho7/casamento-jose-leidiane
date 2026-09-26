@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ExternalLink, Gift, QrCode } from 'lucide-react';
-import { COUPLE, GIFT_QUOTAS } from '../../data/wedding';
+import { GIFT_LISTS, GIFT_QUOTAS } from '../../data/wedding';
 import { formatCurrency } from '../../lib/format';
 import type { GiftQuota } from '../../types';
 import { GiftModal } from '../GiftModal';
@@ -18,7 +18,7 @@ export function Gifts() {
         <SectionHeading
           eyebrow="Lista de presentes"
           title="Para o nosso começo"
-          description="A presença de vocês já é o maior presente. Quem quiser nos mimar tem dois caminhos: a lista na loja ou uma cota simbólica via PIX."
+          description="A presença de vocês já é o maior presente. Quem quiser nos mimar tem dois caminhos: as listas nas lojas ou uma cota simbólica via PIX."
         />
       </Reveal>
 
@@ -26,18 +26,27 @@ export function Gifts() {
         <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-paper p-6 shadow-card md:p-8">
           <div>
             <Gift className="size-8 text-clay" />
-            <h3 className="mt-5 text-2xl text-ink">Lista no Magazine Luiza</h3>
+            <h3 className="mt-5 text-2xl text-ink">Listas nas lojas</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               Itens escolhidos pelos noivos para a casa nova, com entrega direta para eles.
             </p>
           </div>
-          {COUPLE.giftListUrl ? (
-            <LinkButton href={COUPLE.giftListUrl} target="_blank" rel="noopener noreferrer" className="mt-8">
-              Abrir lista <ExternalLink className="size-4" />
-            </LinkButton>
-          ) : (
-            <p className="mt-6 font-mono text-xs tracking-widest text-clay uppercase">Lista em preparação</p>
-          )}
+
+          <ul className="mt-6 space-y-2">
+            {GIFT_LISTS.map((list) => (
+              <li key={list.store}>
+                {list.url ? (
+                  <LinkButton href={list.url} target="_blank" rel="noopener noreferrer" variant="secondary" className="w-full justify-between">
+                    {list.store} <ExternalLink className="size-4" />
+                  </LinkButton>
+                ) : (
+                  <p className="rounded-full border border-dashed border-clay/30 px-6 py-3 text-center font-mono text-xs tracking-widest text-clay uppercase">
+                    {list.store} — em breve
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
         </article>
 
         <article className="flex flex-col justify-between rounded-2xl border border-clay/15 bg-clay p-6 text-paper shadow-card md:p-8">
