@@ -4,6 +4,7 @@ import { createNote, fetchApprovedNotes } from '../../lib/api';
 import { cn } from '../../lib/cn';
 import { formatDate } from '../../lib/format';
 import type { GuestNote } from '../../types';
+import { NoteBoard } from '../NoteBoard';
 import { NoteModal, paperStyles } from '../NoteModal';
 import { Button } from '../ui/Button';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -14,9 +15,9 @@ const tilt = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'];
 function NoteCard({ note, index }: { note: GuestNote; index: number }) {
   const pending = note.status === 'pending';
   return (
-    <li
+    <article
       className={cn(
-        'relative flex min-h-56 flex-col justify-between rounded-2xl border p-6 shadow-paper transition-transform duration-200 ease-out-soft hover:rotate-0',
+        'relative flex h-full min-h-56 flex-col justify-between rounded-2xl border p-6 shadow-paper transition-transform duration-200 ease-out-soft hover:rotate-0',
         paperStyles[note.paper].className,
         tilt[index % tilt.length],
       )}
@@ -41,7 +42,7 @@ function NoteCard({ note, index }: { note: GuestNote; index: number }) {
           <Heart className="size-4 fill-current text-clay/60" />
         )}
       </div>
-    </li>
+    </article>
   );
 }
 
@@ -84,11 +85,7 @@ export function Guestbook() {
       </div>
 
       {board.length > 0 ? (
-        <ul className="mx-auto mt-16 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {board.map((note, i) => (
-            <NoteCard key={note.id} note={note} index={i} />
-          ))}
-        </ul>
+        <NoteBoard notes={board}>{(note, i) => <NoteCard note={note} index={i} />}</NoteBoard>
       ) : (
         <p className="mx-auto mt-16 max-w-md rounded-2xl border border-dashed border-clay/30 p-8 text-center text-sm text-muted">
           O mural ainda está vazio. Que tal pregar o primeiro bilhete?

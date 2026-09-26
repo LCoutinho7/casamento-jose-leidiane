@@ -22,8 +22,7 @@ export const COUPLE = {
 export const GIFT_LISTS: { store: string; url: string }[] = [
   { store: 'Magazine Luiza', url: 'https://www.finalfeliz.de/leidieze' },
   { store: 'Zelo', url: 'https://www.zelo.com.br/lista-de-desejo/lista-de-casamento/produtos/c4182ab3-9127-461d-a794-8f5fa88d3197' },
-  // Havan: link a receber dos noivos.
-  { store: 'Havan', url: '' },
+  { store: 'Havan', url: 'https://lista.havan.com.br/Convidado/ItensListaPresente/963692' },
 ];
 
 export const VENUES: { ceremony?: Venue; reception?: Venue } = {
