@@ -1,72 +1,98 @@
-# José & Leidiane — site do casamento
+# casamentoleidize.com.br
 
-Site do casamento do meu tio Zé com a Leidi, marcado para **16 de janeiro de 2027**. Conta a história dos dois (do primeiro encontro no cinema ao pedido no Cristo Redentor), reúne as informações do grande dia e concentra o que os convidados precisam fazer: confirmar presença, escolher um presente e deixar um bilhetinho para os noivos.
+Site do casamento do meu tio, em 16 de janeiro de 2027. Está no ar em
+**[casamentoleidize.com.br](https://casamentoleidize.com.br)**.
 
-É um site estático, sem framework de servidor, publicado no GitHub Pages. A ideia foi manter o projeto pequeno o suficiente para caber na cabeça inteira e fácil de manter até o dia da festa.
+Não é um site institucional: os convidados precisam fazer coisas nele. Escolher um presente e pagar
+por PIX, deixar um recado para o casal, consultar local e horário. E do outro lado existe um casal
+que precisa moderar o que os convidados escrevem e confirmar quais presentes realmente caíram na
+conta. Isso significa escrita pública, moderação privada e e-mail transacional — em um projeto que
+não pode custar nada por mês e que precisa continuar funcionando sem manutenção até a data da festa.
 
-## O que tem no site
+O resultado é um front-end estático no GitHub Pages falando direto com o Postgres do Supabase, sem
+servidor próprio no meio.
 
-- **Nossa história** — linha do tempo com cinco capítulos e fotos reais do casal.
-- **Contagem regressiva** com botões para salvar a data no Google Agenda ou baixar um `.ics`.
-- **Galeria** com filtro por momento (ensaio, viagens, noivado) e lightbox navegável pelo teclado.
-- **O grande dia** — cards de cerimônia e recepção com mapa e endereço para copiar. Enquanto o local não é confirmado, a seção mostra um aviso em vez de dados inventados.
-- **Lista de presentes** em dois caminhos: link para a lista no Magazine Luiza e cotas simbólicas via PIX. O site gera o payload "PIX copia e cola" (BR Code do Banco Central) com o valor da cota já preenchido, sem depender de gateway nem de taxa.
-- **Mural de bilhetinhos** — o convidado escreve um recado, escolhe a cor do papel e ele fica marcado como "aguardando aprovação" até os noivos liberarem.
-- **RSVP** — ainda fechado. A confirmação abre junto com o convite, com a regra de acompanhantes por convite.
-- **Guia do convidado** e **perguntas frequentes**.
+## As decisões que definiram o projeto
+
+**PIX gerado no navegador, sem gateway.** As cotas de presente poderiam passar por uma plataforma de
+lista de casamento, que cobra de 5% a 9% do valor. Em vez disso o site monta o payload do BR Code —
+o padrão EMV do Banco Central, com CRC16 no fim — direto no cliente, já com o valor da cota
+preenchido ([`src/lib/pix.ts`](src/lib/pix.ts)). O convidado copia e cola no app do banco. Zero taxa,
+zero intermediário, zero dado de pagamento passando por mim. Validei o CRC contra o exemplo oficial
+da especificação antes de confiar nele.
+
+**A segurança mora no banco, não no JavaScript.** O site é estático, então a chave do Supabase está
+no bundle e qualquer pessoa pode montar um POST na mão. Por isso nenhuma regra depende do front-end:
+
+- Row Level Security deixa qualquer um inserir um bilhete, mas ler apenas os aprovados. Os avisos de
+  presente ninguém lê, exceto os noivos autenticados.
+- Um `BEFORE INSERT` sobrescreve o campo `status` a cada inserção — mandar `"status": "approved"` no
+  JSON não aprova nada.
+- O limite por convidado é contado no banco, por hash do IP que o PostgREST expõe no header. Sem
+  login, é o mais perto de "por pessoa" que dá para chegar.
+
+**E-mail transacional sem função serverless.** Quando um bilhete chega, os noivos são avisados; quando
+eles confirmam um presente, o convidado recebe um comprovante. Isso poderia ser uma Edge Function,
+mas seria mais um artefato para versionar e implantar. O gatilho chama a API do Resend pelo `pg_net`,
+com a chave no Vault do Supabase, e os templates HTML são funções SQL — trocar o visual do e-mail não
+exige redeploy de nada ([`supabase/`](supabase/)).
+
+**O painel de moderação é outra página, não um roteador.** O site tem uma página só; colocar um
+roteador para servir `/admin` seria carregar uma dependência inteira por causa de uma rota. O Vite
+gera dois pontos de entrada, e o `@supabase/supabase-js` (que entra por causa do login) fica no bundle
+do painel: o site público carrega **19 kB gzip** e usa `fetch` puro.
+
+**Nada inventado na tela.** Enquanto os noivos não confirmavam o local, a seção mostrava um aviso em
+vez de um endereço fictício. Vale para chave PIX, contatos e links de lista: cada campo vazio em
+[`src/data/wedding.ts`](src/data/wedding.ts) degrada para "em breve" sozinho.
+
+## O que o site faz
+
+Linha do tempo com cinco capítulos da história do casal, galeria com filtro e lightbox navegável por
+teclado, contagem regressiva com exportação para Google Agenda e `.ics`, cotas de presente com o
+fluxo completo de PIX, mural de recados com moderação, e o guia dos convidados. O RSVP tem a data
+limite e a estrutura de dados prontas, esperando a lista de convidados fechar.
+
+O conteúdo todo — datas, textos, fotos, cotas, FAQ — vive em um arquivo só. Mudar a lista de
+presentes é editar um array.
+
+## Detalhes que custaram tempo
+
+O movimento é todo em `transform` e `opacity`, com `prefers-reduced-motion` respeitado: a linha do
+tempo se desenha conforme o scroll, o contador entra como folhinha de calendário caindo, e confirmar
+um presente solta confete. O mural vira carrossel com `scroll-snap` no mobile e paginação automática
+no desktop, pausando quando o cursor está em cima.
+
+As 28 fotos vieram de um Drive com quase 1 GB de originais. Depois da curadoria e da conversão para
+WebP, o site inteiro carrega 3,7 MB de imagem.
 
 ## Stack
 
-- [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
-- [Vite 6](https://vite.dev)
-- [Tailwind CSS 4](https://tailwindcss.com), com os tokens do projeto declarados em `@theme` (`src/index.css`)
-- [lucide-react](https://lucide.dev) para os ícones
-- GitHub Actions + GitHub Pages para o deploy
+React 19, TypeScript, Vite 6 e Tailwind CSS 4 — com todos os valores visuais declarados em `@theme`,
+de modo que nenhum hexadecimal ou duração de transição apareça solto em componente. Supabase
+(Postgres, Auth, RLS) para os dados, Resend para e-mail, GitHub Actions publicando no GitHub Pages a
+cada push. Sem biblioteca de estado e sem roteador.
 
-Sem biblioteca de estado, sem roteador, sem backend. Cada coisa que o site precisa lembrar (por enquanto só os bilhetes pendentes do próprio visitante) fica no `localStorage`.
-
-## Rodando localmente
+## Rodando
 
 ```bash
 npm install
 npm run dev
 ```
 
-Outros scripts:
-
-| Comando | O que faz |
-|---|---|
-| `npm run build` | Checa os tipos e gera a versão de produção em `dist/` |
-| `npm run preview` | Serve o `dist/` localmente |
-| `npm run typecheck` | Só a checagem de tipos |
-
-## Estrutura
+`npm run build` checa os tipos e gera o `dist/`; `npm run preview` serve o resultado. O schema do
+banco, as políticas de acesso e os templates de e-mail estão em [`supabase/`](supabase/), na ordem em
+que devem ser aplicados.
 
 ```
 src/
-├── data/wedding.ts        # tudo que é conteúdo: datas, história, galeria, cotas, FAQ
-├── types.ts
-├── hooks/                 # useCountdown, useLocalStorage
-├── lib/                   # formatação, geração do payload PIX, utilitário de classes
+├── data/wedding.ts   todo o conteúdo do site
+├── lib/              PIX (BR Code), cliente REST, formatação
+├── hooks/            contagem regressiva, scroll reveal, media query
 ├── components/
-│   ├── ui/                # Button, SectionHeading, Modal, Field
-│   ├── layout/            # Navbar, Footer
-│   ├── sections/          # uma pasta por seção da página, na ordem em que aparecem
-│   ├── GiftModal.tsx
-│   └── NoteModal.tsx
-├── App.tsx
-└── index.css              # tokens (@theme) e estilos base
-public/images/             # fotos otimizadas em WebP (as originais ficam fora do repositório)
+│   ├── ui/           botão, modal, campo, tilt, confete
+│   ├── layout/       navbar, rodapé, barra de progresso
+│   └── sections/     uma por seção da página
+├── admin/            painel de moderação (entrada separada)
+└── index.css         tokens e estilos base
 ```
-
-Quase toda alteração de conteúdo acontece em `src/data/wedding.ts`. Quando os noivos confirmarem o local, a chave PIX, o WhatsApp e o link da lista, basta preencher os campos lá e as seções passam a exibir os dados sozinhas.
-
-## Deploy
-
-Todo push na `main` roda o workflow em `.github/workflows/deploy.yml`, que publica o `dist/` no GitHub Pages. O domínio é `casamentoleidize.com.br`, definido em `public/CNAME`.
-
-## Próximos passos
-
-- [ ] RSVP com busca do convite pelo nome e confirmação individual de cada acompanhante (a lista de convidados está sendo fechada em planilha).
-- [ ] Painel simples para os noivos aprovarem ou recusarem os bilhetinhos. Vai exigir uma API pequena em Node.js com banco gratuito; até lá os bilhetes ficam locais.
-- [ ] Local, horário, chave PIX, WhatsApp e link da lista de presentes, assim que os noivos confirmarem.
