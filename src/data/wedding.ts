@@ -118,6 +118,7 @@ export const GALLERY: GalleryPhoto[] = [
 ];
 
 export const GIFT_QUOTAS: GiftQuota[] = [
+  { id: 'livre', name: 'Cota livre', description: 'Qualquer valor, do jeito que o seu coração mandar.', price: 100, customAmount: true },
   { id: 'cafe', name: 'Café para sobreviver à segunda-feira', description: 'O combustível que faz a semana começar em paz.', price: 59.9 },
   { id: 'meias', name: 'Fundo emergencial para meias perdidas', description: 'Ninguém sabe para onde elas vão, mas alguém precisa repor.', price: 59.9 },
   { id: 'hamburguer', name: 'Hambúrguer para aquela noite em que ninguém quer cozinhar', description: 'Acontece mais do que a gente admite.', price: 89.9 },
@@ -130,7 +131,6 @@ export const GIFT_QUOTAS: GiftQuota[] = [
   { id: 'praia', name: 'Patrocínio de um dia de praia sem preocupação', description: 'Guarda-sol, cadeira e nenhum compromisso.', price: 400 },
   { id: 'lua-de-mel', name: 'Patrocínio oficial de um dia perfeito na lua de mel', description: 'Um dia inteiro da viagem por sua conta.', price: 500 },
   { id: 'amo-os-noivos', name: 'Cota “eu realmente amo esses noivos”', description: 'Para quem quer exagerar no carinho.', price: 1000 },
-  { id: 'livre', name: 'Cota livre', description: 'Qualquer valor, do jeito que o seu coração mandar.', price: 100, customAmount: true },
 ];
 
 export const FAQ: FaqItem[] = [
@@ -147,7 +147,7 @@ export const FAQ: FaqItem[] = [
     answer: 'Traje social. Pedimos apenas que evitem branco, off-white, marfim e outros tons claros que possam parecer branco — essa cor fica reservada à noiva.',
   },
   {
-    question: 'Como funciona a lista de presentes?',
-    answer: 'Há dois caminhos: a lista no Magazine Luiza, com entrega direta para os noivos, ou as cotas simbólicas via PIX aqui no site. A presença de vocês já é o maior presente.',
+    question: 'Listas em lojas on-line e cotas.',
+    answer: 'Há dois caminhos: listas em sites disponíveis aqui na seção presentes, com entrega direta para os noivos, ou as cotas simbólicas via PIX aqui no site. A presença de vocês já é o maior presente.',
   },
 ];
