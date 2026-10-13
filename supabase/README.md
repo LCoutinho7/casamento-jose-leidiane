@@ -16,6 +16,14 @@ Projeto `nxxfvtzdvvnvrlyevfzk`. O site usa a chave publicável e só enxerga o q
 
    O domínio `casamentoleidize.com.br` está verificado no Resend (região São Paulo), então os e-mails saem de `noivos@casamentoleidize.com.br` para qualquer destinatário.
 
+5. **Lista de convidados.** Rodar `rsvp.sql`. Depois gerar a carga a partir da planilha e colar o resultado no SQL Editor:
+
+   ```bash
+   python scripts/importar-convidados.py assets/convidados.xlsx > assets/convidados.sql
+   ```
+
+   O SQL gerado tem nomes, telefones e e-mails da família, por isso fica em `assets/`, fora do git. Ele é idempotente: rodar de novo atualiza pelo código da planilha sem duplicar ninguém nem apagar respostas.
+
 ## Regras que valem
 
 - Bilhete entra sempre como `pending`; o site público só lê `status = 'approved'`.
@@ -23,6 +31,10 @@ Projeto `nxxfvtzdvvnvrlyevfzk`. O site usa a chave publicável e só enxerga o q
 - `status` é forçado pelo gatilho na inserção: ninguém se autoaprova mandando JSON.
 - Limite por dispositivo (hash do IP, 24h): 5 bilhetes e 10 avisos de presente.
 - Quem modera está na função `is_admin()`. Mudar de moderador é editar essa função.
+- RSVP: a confirmação é da pessoa, não do grupo. Um acompanhante de casal é uma linha com dois vínculos, então não há como confirmá-lo duas vezes.
+- O público não lê nem grava `guests`. Só passa por `rsvp_lookup` e `rsvp_respond`, que exigem nome e sobrenome, só alteram presença e só dentro do grupo encontrado. Criar convidado é exclusivo do painel.
+- Depois de 30/11/2026 o banco recusa respostas; o painel continua editando.
+- Criança (`is_child`) não entra no total nem no buffet.
 
 ## Painel
 

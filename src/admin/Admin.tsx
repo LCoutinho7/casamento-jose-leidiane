@@ -3,6 +3,7 @@ import { Check, LogOut, RefreshCw, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Field';
 import { formatCurrency, formatDate } from '../lib/format';
+import { Guests } from './Guests';
 import { supabase, type NoteRow, type PledgeRow } from './supabase';
 
 function Login() {
@@ -47,7 +48,7 @@ export function Admin() {
   const [ready, setReady] = useState(false);
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [pledges, setPledges] = useState<PledgeRow[]>([]);
-  const [tab, setTab] = useState<'notes' | 'pledges'>('notes');
+  const [tab, setTab] = useState<'guests' | 'notes' | 'pledges'>('guests');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -101,6 +102,7 @@ export function Admin() {
   const pendingNotes = notes.filter((note) => note.status === 'pending').length;
   const openPledges = pledges.filter((pledge) => pledge.status === 'announced').length;
   const tabs = [
+    { id: 'guests' as const, label: 'Convidados', badge: 0 },
     { id: 'notes' as const, label: 'Bilhetinhos', badge: pendingNotes },
     { id: 'pledges' as const, label: 'Presentes', badge: openPledges },
   ];
@@ -110,7 +112,7 @@ export function Admin() {
       <header className="flex items-center justify-between gap-4 border-b border-clay/15 pb-6">
         <div>
           <p className="eyebrow">Área dos noivos</p>
-          <h1 className="mt-1 text-3xl text-ink">Moderação</h1>
+          <h1 className="mt-1 text-3xl text-ink">Painel</h1>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={load}>
@@ -133,7 +135,9 @@ export function Admin() {
         ))}
       </div>
 
-      {tab === 'notes' ? (
+      {tab === 'guests' ? (
+        <Guests />
+      ) : tab === 'notes' ? (
         <ul className="mt-8 space-y-4">
           {notes.map((note) => (
             <Card key={note.id}>

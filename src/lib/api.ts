@@ -42,3 +42,28 @@ export function createPledge(pledge: {
 }) {
   return rest('pledges', { method: 'POST', body: JSON.stringify(pledge) });
 }
+
+// ---------------------------------------------------------------- RSVP
+// As funções do banco devolvem um motivo em vez de erro nos caminhos esperados.
+
+export interface RsvpPerson {
+  id: string;
+  full_name: string;
+  is_self: boolean;
+  status: 'pending' | 'confirmed' | 'declined';
+  responded_by: string | null;
+  responded_at: string | null;
+}
+
+export type RsvpReason = 'ok' | 'short' | 'not_found' | 'ambiguous' | 'throttled' | 'closed' | 'invalid';
+
+export function rsvpLookup(name: string): Promise<{ reason: RsvpReason; group?: RsvpPerson[] }> {
+  return rest('rpc/rsvp_lookup', { method: 'POST', body: JSON.stringify({ raw_name: name }) });
+}
+
+export function rsvpRespond(
+  name: string,
+  answers: { id: string; status: 'confirmed' | 'declined' }[],
+): Promise<{ reason: RsvpReason }> {
+  return rest('rpc/rsvp_respond', { method: 'POST', body: JSON.stringify({ raw_name: name, answers }) });
+}

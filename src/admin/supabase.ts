@@ -22,3 +22,20 @@ export interface PledgeRow {
   status: 'announced' | 'received';
   created_at: string;
 }
+
+export interface GuestRow {
+  id: string;
+  code: string | null;
+  full_name: string;
+  kind: 'principal' | 'companion';
+  is_child: boolean;
+  phone: string | null;
+  email: string | null;
+  status: 'pending' | 'confirmed' | 'declined';
+  responded_at: string | null;
+}
+
+export interface GuestLinkRow {
+  principal_id: string;
+  companion_id: string;
+}
