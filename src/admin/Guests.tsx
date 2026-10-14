@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Baby, Check, Pencil, Plus, Trash2, UserPlus, X } from 'lucide-react';
+import { Baby, Check, Pencil, Plus, Trash2, UserMinus, UserPlus, Users, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Field';
 import { cn } from '../lib/cn';
@@ -215,11 +215,118 @@ function EditGuestForm({
   );
 }
 
+function CompanionsPanel({
+  principal,
+  companions,
+  editing,
+  onEdit,
+  onSave,
+  onAdd,
+  onRemove,
+}: {
+  principal: GuestRow;
+  companions: GuestRow[];
+  editing: string | null;
+  onEdit: (id: string | null) => void;
+  onSave: (id: string, change: Partial<GuestRow>) => void;
+  onAdd: (fullName: string, isChild: boolean) => Promise<boolean>;
+  onRemove: (companion: GuestRow) => void;
+}) {
+  const [name, setName] = useState('');
+  const [isChild, setIsChild] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    const added = await onAdd(name.trim(), isChild);
+    setBusy(false);
+    if (added) {
+      setName('');
+      setIsChild(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 space-y-3 rounded-xl border border-clay/15 bg-white p-4">
+      <p className="text-xs font-semibold tracking-wider text-muted uppercase">
+        Acompanhantes de {principal.full_name.split(' ')[0]}
+      </p>
+
+      {companions.length > 0 && (
+        <ul className="divide-y divide-clay/10">
+          {companions.map((companion) =>
+            editing === companion.id ? (
+              <li key={companion.id}>
+                <EditGuestForm
+                  guest={companion}
+                  onCancel={() => onEdit(null)}
+                  onSave={(change) => {
+                    onEdit(null);
+                    onSave(companion.id, change);
+                  }}
+                />
+              </li>
+            ) : (
+              <li key={companion.id} className="flex items-center justify-between gap-3 py-2">
+                <div className="min-w-0">
+                  <p className="text-sm text-ink">
+                    {companion.full_name}
+                    {companion.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
+                  </p>
+                  <p className="font-mono text-xs text-muted">{STATUS_LABEL[companion.status]}</p>
+                </div>
+                <div className="flex shrink-0 gap-1.5">
+                  <button
+                    type="button"
+                    aria-label={`Editar ${companion.full_name}`}
+                    onClick={() => onEdit(companion.id)}
+                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Tirar ${companion.full_name} do convite`}
+                    onClick={() => onRemove(companion)}
+                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
+                  >
+                    <UserMinus className="size-3.5" />
+                  </button>
+                </div>
+              </li>
+            ),
+          )}
+        </ul>
+      )}
+
+      <form onSubmit={submit} className="flex flex-wrap items-center gap-2">
+        <input
+          aria-label="Nome do novo acompanhante"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nome e sobrenome"
+          className="min-w-0 flex-1 basis-48 rounded-xl border border-clay/30 bg-white px-4 py-2.5 text-sm text-ink focus:border-clay focus:outline-none"
+        />
+        <label className="flex shrink-0 items-center gap-1 text-xs text-muted">
+          <input type="checkbox" checked={isChild} onChange={(e) => setIsChild(e.target.checked)} />
+          criança
+        </label>
+        <Button type="submit" size="sm" disabled={busy || !name.trim()}>
+          <Plus className="size-3.5" /> Adicionar
+        </Button>
+      </form>
+    </div>
+  );
+}
+
 export function Guests() {
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [links, setLinks] = useState<GuestLinkRow[]>([]);
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
+  const [panelEditing, setPanelEditing] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -247,6 +354,15 @@ export function Guests() {
     for (const link of links) {
       const host = byId.get(link.principal_id)?.full_name.split(' ')[0];
       if (host) map.set(link.companion_id, [...(map.get(link.companion_id) ?? []), host]);
+    }
+    return map;
+  }, [links, byId]);
+
+  const companionsOf = useMemo(() => {
+    const map = new Map<string, GuestRow[]>();
+    for (const link of links) {
+      const companion = byId.get(link.companion_id);
+      if (companion) map.set(link.principal_id, [...(map.get(link.principal_id) ?? []), companion]);
     }
     return map;
   }, [links, byId]);
@@ -279,6 +395,43 @@ export function Guests() {
       setError('Não foi possível excluir. Recarregue a página.');
       load();
     }
+  };
+
+  // Duas chamadas: se o vínculo falhar, desfaz o convidado para não sobrar acompanhante solto.
+  const addCompanion = async (principal: GuestRow, fullName: string, isChild: boolean) => {
+    const { data, error: insertError } = await supabase
+      .from('guests')
+      .insert({ full_name: fullName, kind: 'companion', is_child: isChild })
+      .select('id')
+      .single();
+    if (insertError) {
+      setError('Não foi possível adicionar o acompanhante.');
+      return false;
+    }
+    const { error: linkError } = await supabase
+      .from('guest_links')
+      .insert({ principal_id: principal.id, companion_id: data.id });
+    if (linkError) {
+      await supabase.from('guests').delete().eq('id', data.id);
+      setError('Não foi possível adicionar o acompanhante.');
+      return false;
+    }
+    await load();
+    return true;
+  };
+
+  // Acompanhante de casal só sai deste convite; se não estiver em outro, sai da lista.
+  const removeCompanion = async (principal: GuestRow, companion: GuestRow) => {
+    const elsewhere = links.some((l) => l.companion_id === companion.id && l.principal_id !== principal.id);
+    const question = elsewhere
+      ? `Tirar ${companion.full_name} do convite de ${principal.full_name}?\n\nContinua no outro convite.`
+      : `Excluir ${companion.full_name} da lista?`;
+    if (!window.confirm(question)) return;
+    const { error: removeError } = elsewhere
+      ? await supabase.from('guest_links').delete().eq('principal_id', principal.id).eq('companion_id', companion.id)
+      : await supabase.from('guests').delete().eq('id', companion.id);
+    if (removeError) setError('Não foi possível tirar o acompanhante.');
+    load();
   };
 
   const setStatus = (id: string, status: Status) =>
@@ -330,67 +483,98 @@ export function Guests() {
               />
             </li>
           ) : (
-            <li key={guest.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="font-medium text-ink">
-                  {guest.full_name}
-                  {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
-                </p>
-                <p className="mt-0.5 font-mono text-xs text-muted">
-                  {STATUS_LABEL[guest.status]}
-                  {guest.kind === 'companion' &&
-                    hostsOf.get(guest.id) &&
-                    ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
-                </p>
-              </div>
+            <li key={guest.id} className="p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-medium text-ink">
+                    {guest.full_name}
+                    {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
+                  </p>
+                  <p className="mt-0.5 font-mono text-xs text-muted">
+                    {STATUS_LABEL[guest.status]}
+                    {guest.kind === 'companion' &&
+                      hostsOf.get(guest.id) &&
+                      ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
+                  </p>
+                </div>
 
-              <div className="flex shrink-0 flex-wrap gap-1.5">
-                {(['confirmed', 'declined', 'pending'] as const).map((status) => (
+                <div className="flex shrink-0 flex-wrap gap-1.5">
+                  {(['confirmed', 'declined', 'pending'] as const).map((status) => (
+                    <button
+                      key={status}
+                      type="button"
+                      aria-pressed={guest.status === status}
+                      onClick={() => setStatus(guest.id, status)}
+                      className={cn(
+                        'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
+                        guest.status === status
+                          ? 'border-clay bg-clay text-paper'
+                          : 'border-clay/30 text-clay hover:border-clay',
+                      )}
+                    >
+                      {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
+                      {STATUS_LABEL[status]}
+                    </button>
+                  ))}
+                  {guest.kind === 'principal' && (
+                    <button
+                      type="button"
+                      aria-label={`Acompanhantes de ${guest.full_name}`}
+                      aria-expanded={expanded === guest.id}
+                      onClick={() => setExpanded(expanded === guest.id ? null : guest.id)}
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1.5 font-mono text-xs transition-colors duration-150',
+                        expanded === guest.id
+                          ? 'border-clay bg-clay text-paper'
+                          : 'border-clay/30 text-clay hover:border-clay',
+                      )}
+                    >
+                      <Users className="size-3.5" />
+                      {companionsOf.get(guest.id)?.length ?? 0}
+                    </button>
+                  )}
                   <button
-                    key={status}
                     type="button"
-                    aria-pressed={guest.status === status}
-                    onClick={() => setStatus(guest.id, status)}
+                    aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
+                    aria-pressed={guest.is_child}
+                    onClick={() => update(guest.id, { is_child: !guest.is_child })}
                     className={cn(
-                      'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
-                      guest.status === status
-                        ? 'border-clay bg-clay text-paper'
-                        : 'border-clay/30 text-clay hover:border-clay',
+                      'rounded-full border p-1.5 transition-colors duration-150',
+                      guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
                     )}
                   >
-                    {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
-                    {STATUS_LABEL[status]}
+                    <Baby className="size-3.5" />
                   </button>
-                ))}
-                <button
-                  type="button"
-                  aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
-                  aria-pressed={guest.is_child}
-                  onClick={() => update(guest.id, { is_child: !guest.is_child })}
-                  className={cn(
-                    'rounded-full border p-1.5 transition-colors duration-150',
-                    guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
-                  )}
-                >
-                  <Baby className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Editar ${guest.full_name}`}
-                  onClick={() => setEditing(guest.id)}
-                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
-                >
-                  <Pencil className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Excluir ${guest.full_name}`}
-                  onClick={() => remove(guest)}
-                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
+                  <button
+                    type="button"
+                    aria-label={`Editar ${guest.full_name}`}
+                    onClick={() => setEditing(guest.id)}
+                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
+                  >
+                    <Pencil className="size-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Excluir ${guest.full_name}`}
+                    onClick={() => remove(guest)}
+                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                </div>
               </div>
+
+              {expanded === guest.id && (
+                <CompanionsPanel
+                  principal={guest}
+                  companions={companionsOf.get(guest.id) ?? []}
+                  editing={panelEditing}
+                  onEdit={setPanelEditing}
+                  onSave={update}
+                  onAdd={(fullName, isChild) => addCompanion(guest, fullName, isChild)}
+                  onRemove={(companion) => removeCompanion(guest, companion)}
+                />
+              )}
             </li>
           ),
         )}

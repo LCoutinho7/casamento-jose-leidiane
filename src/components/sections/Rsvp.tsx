@@ -31,8 +31,6 @@ function currentAnswer(person: RsvpPerson) {
   return `${label}${by}${when}`;
 }
 
-const firstName = (person: RsvpPerson) => person.full_name.split(' ')[0];
-
 /**
  * Quem buscou vem primeiro. Se for o titular, os demais são os acompanhantes dele;
  * se for acompanhante, os demais são os titulares a quem está ligado.
@@ -46,7 +44,8 @@ function describeInvite(group: RsvpPerson[]) {
   return {
     self,
     others,
-    title: `Convite de ${hosts.map(firstName).join(' e ')}`,
+    selfIsHost,
+    title: `Convite de ${hosts.map((host) => host.full_name).join(' e ')}`,
     badge: selfIsHost ? 'Titular do convite' : 'Você',
     othersLabel: selfIsHost
       ? 'Acompanhantes do convite:'
@@ -59,21 +58,32 @@ function describeInvite(group: RsvpPerson[]) {
 function PersonRow({
   person,
   badge,
+  nested,
   choice,
   onChoose,
 }: {
   person: RsvpPerson;
   badge?: string;
+  nested?: boolean;
   choice?: Choice;
   onChoose: (id: string, choice: Choice) => void;
 }) {
   return (
-    <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <li
+      className={cn(
+        'flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between',
+        nested ? 'pl-4 sm:pl-6' : 'px-4 sm:px-5',
+      )}
+    >
       <div>
-        <p className="flex flex-wrap items-center gap-2 font-medium text-ink">
+        <p
+          className={cn('flex flex-wrap items-center gap-2 text-ink', badge ? 'text-lg font-semibold' : 'font-medium')}
+        >
           {person.full_name}
           {badge && (
-            <span className="rounded-full bg-clay/10 px-2 py-0.5 text-xs font-medium text-clay-dark">{badge}</span>
+            <span className="inline-flex items-center rounded-full bg-clay/15 px-2.5 py-0.5 text-[0.6875rem] font-medium tracking-wide text-clay-dark">
+              {badge}
+            </span>
           )}
         </p>
         <p className="mt-0.5 font-mono text-xs text-muted">{currentAnswer(person)}</p>
@@ -122,9 +132,7 @@ export function Rsvp() {
         setGroup(result.group);
         // Começa pelas respostas já dadas: quem abre de novo vê o que está valendo.
         setChoices(
-          Object.fromEntries(
-            result.group.filter((p) => p.status !== 'pending').map((p) => [p.id, p.status as Choice]),
-          ),
+          Object.fromEntries(result.group.filter((p) => p.status !== 'pending').map((p) => [p.id, p.status as Choice])),
         );
       } else {
         setGroup(null);
@@ -139,11 +147,13 @@ export function Rsvp() {
 
   const choose = (id: string, choice: Choice) => setChoices((prev) => ({ ...prev, [id]: choice }));
   const invite = group && describeInvite(group);
-  const missing = group ? group.filter((person) => !choices[person.id]).length : 0;
+  // Só vai o que mudou: reenviar resposta antiga trocaria "confirmado por" de quem já tinha respondido.
+  const changed = group ? group.filter((person) => choices[person.id] && choices[person.id] !== person.status) : [];
+  const unanswered = group ? group.filter((person) => !choices[person.id]).length : 0;
 
   const submit = async () => {
     if (!group) return;
-    const answers = Object.entries(choices).map(([id, status]) => ({ id, status }));
+    const answers = changed.map((person) => ({ id: person.id, status: choices[person.id] }));
     setBusy(true);
     setMessage('');
     try {
@@ -216,40 +226,48 @@ export function Rsvp() {
         {group && invite && !expired && (
           <div className="mx-auto mt-10 max-w-xl">
             <div className="overflow-hidden rounded-2xl border border-clay/15 bg-white">
-              <div className="border-b border-clay/15 bg-sand/40 px-4 py-4 sm:px-5">
-                <h3 className="font-serif text-2xl text-ink">{invite.title}</h3>
-                <p className="mt-1 text-sm text-muted">Selecione a presença para cada pessoa abaixo:</p>
+              <div className="border-b border-clay/10 bg-clay/5 px-4 py-5 sm:px-5">
+                <h3 className="font-serif text-2xl font-semibold text-clay-darker sm:text-3xl">{invite.title}</h3>
+                <p className="mt-1 text-xs tracking-wider text-muted uppercase">
+                  Selecione a presença para cada pessoa abaixo:
+                </p>
               </div>
 
               <ul>
-                <PersonRow person={invite.self} badge={invite.badge} choice={choices[invite.self.id]} onChoose={choose} />
+                <PersonRow
+                  person={invite.self}
+                  badge={invite.badge}
+                  choice={choices[invite.self.id]}
+                  onChoose={choose}
+                />
               </ul>
 
               {invite.others.length > 0 && (
-                <div className="border-t border-clay/15">
-                  <p className="px-4 pt-4 text-xs font-semibold tracking-wider text-muted uppercase sm:px-5">
+                <div className="mx-4 mt-2 border-t border-dashed border-clay/20 pt-4 sm:mx-5">
+                  <p className="text-[0.6875rem] font-bold tracking-widest text-clay-dark uppercase">
                     {invite.othersLabel}
                   </p>
                   <ul className="divide-y divide-clay/10">
                     {invite.others.map((person) => (
-                      <PersonRow key={person.id} person={person} choice={choices[person.id]} onChoose={choose} />
+                      <PersonRow
+                        key={person.id}
+                        person={person}
+                        nested={invite.selfIsHost}
+                        choice={choices[person.id]}
+                        onChoose={choose}
+                      />
                     ))}
                   </ul>
                 </div>
               )}
             </div>
 
-            <Button
-              size="lg"
-              onClick={submit}
-              disabled={busy || missing > 0}
-              className="mt-6 w-full"
-            >
+            <Button size="lg" onClick={submit} disabled={busy || changed.length === 0} className="mt-6 w-full">
               {busy ? 'Salvando' : 'Enviar resposta'}
             </Button>
-            {missing > 0 && (
+            {changed.length > 0 && unanswered > 0 && (
               <p className="mt-3 text-center font-mono text-xs text-muted">
-                Falta escolher para {missing} {missing === 1 ? 'pessoa' : 'pessoas'}
+                Quem ficar sem escolha continua pendente e pode responder depois.
               </p>
             )}
 
