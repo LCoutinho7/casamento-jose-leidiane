@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Baby, Check, Pencil, Plus, Trash2, UserMinus, UserPlus, Users, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { Baby, Check, Pencil, Plus, Trash2, UserMinus, UserPlus, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Field';
 import { cn } from '../lib/cn';
@@ -216,18 +216,12 @@ function EditGuestForm({
 }
 
 function CompanionsPanel({
-  principal,
   companions,
-  editing,
-  onEdit,
   onSave,
   onAdd,
   onRemove,
 }: {
-  principal: GuestRow;
   companions: GuestRow[];
-  editing: string | null;
-  onEdit: (id: string | null) => void;
   onSave: (id: string, change: Partial<GuestRow>) => void;
   onAdd: (fullName: string, isChild: boolean) => Promise<boolean>;
   onRemove: (companion: GuestRow) => void;
@@ -235,6 +229,7 @@ function CompanionsPanel({
   const [name, setName] = useState('');
   const [isChild, setIsChild] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -248,11 +243,8 @@ function CompanionsPanel({
   };
 
   return (
-    <div className="mt-4 space-y-3 rounded-xl border border-clay/15 bg-white p-4">
-      <p className="text-xs font-semibold tracking-wider text-muted uppercase">
-        Acompanhantes de {principal.full_name.split(' ')[0]}
-      </p>
-
+    <div className="space-y-3">
+      {companions.length === 0 && <p className="text-sm text-muted">Nenhum acompanhante neste convite.</p>}
       {companions.length > 0 && (
         <ul className="divide-y divide-clay/10">
           {companions.map((companion) =>
@@ -260,9 +252,9 @@ function CompanionsPanel({
               <li key={companion.id}>
                 <EditGuestForm
                   guest={companion}
-                  onCancel={() => onEdit(null)}
+                  onCancel={() => setEditing(null)}
                   onSave={(change) => {
-                    onEdit(null);
+                    setEditing(null);
                     onSave(companion.id, change);
                   }}
                 />
@@ -280,7 +272,7 @@ function CompanionsPanel({
                   <button
                     type="button"
                     aria-label={`Editar ${companion.full_name}`}
-                    onClick={() => onEdit(companion.id)}
+                    onClick={() => setEditing(companion.id)}
                     className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
                   >
                     <Pencil className="size-3.5" />
@@ -320,13 +312,105 @@ function CompanionsPanel({
   );
 }
 
+function GuestModal({
+  guest,
+  companions,
+  onClose,
+  onSave,
+  onAddCompanion,
+  onRemoveCompanion,
+}: {
+  guest: GuestRow;
+  companions: GuestRow[];
+  onClose: () => void;
+  onSave: (id: string, change: Partial<GuestRow>) => void;
+  onAddCompanion: (fullName: string, isChild: boolean) => Promise<boolean>;
+  onRemoveCompanion: (companion: GuestRow) => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [tab, setTab] = useState<'guest' | 'companions'>('guest');
+  const isPrincipal = guest.kind === 'principal';
+
+  // <dialog> nativo: foco preso, Esc fecha e o fundo fica inerte sem biblioteca.
+  useEffect(() => {
+    dialog.current?.showModal();
+  }, []);
+
+  return (
+    <dialog
+      ref={dialog}
+      onClose={onClose}
+      onClick={(event) => event.target === dialog.current && dialog.current?.close()}
+      aria-label={`Editar ${guest.full_name}`}
+      className="m-auto max-h-[90svh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-clay/15 bg-paper p-0 text-ink shadow-card backdrop:bg-ink/40"
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-clay/15 px-6 pt-6 pb-4">
+        <div className="min-w-0">
+          <p className="eyebrow">{isPrincipal ? 'Convidado' : 'Acompanhante'}</p>
+          <h2 className="mt-1 truncate text-2xl text-ink">{guest.full_name}</h2>
+        </div>
+        <button
+          type="button"
+          aria-label="Fechar"
+          onClick={() => dialog.current?.close()}
+          className="rounded-full p-2 text-clay transition-colors duration-150 hover:bg-sand"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      {isPrincipal && (
+        <div role="tablist" className="flex gap-2 px-6 pt-4">
+          {(
+            [
+              ['guest', 'Dados'],
+              ['companions', `Acompanhantes · ${companions.length}`],
+            ] as const
+          ).map(([id, label]) => (
+            <Button
+              key={id}
+              role="tab"
+              aria-selected={tab === id}
+              size="sm"
+              variant={tab === id ? 'primary' : 'secondary'}
+              onClick={() => setTab(id)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      )}
+
+      <div className="px-2 pb-4 sm:px-2">
+        {tab === 'guest' ? (
+          <EditGuestForm
+            guest={guest}
+            onCancel={() => dialog.current?.close()}
+            onSave={(change) => {
+              onSave(guest.id, change);
+              dialog.current?.close();
+            }}
+          />
+        ) : (
+          <div className="p-4">
+            <CompanionsPanel
+              companions={companions}
+              onSave={onSave}
+              onAdd={onAddCompanion}
+              onRemove={onRemoveCompanion}
+            />
+          </div>
+        )}
+      </div>
+    </dialog>
+  );
+}
+
 export function Guests() {
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [links, setLinks] = useState<GuestLinkRow[]>([]);
   const [query, setQuery] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
-  const [panelEditing, setPanelEditing] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -366,6 +450,8 @@ export function Guests() {
     }
     return map;
   }, [links, byId]);
+
+  const editingGuest = editing ? byId.get(editing) : undefined;
 
   // Criança não entra no total nem no buffet.
   const adults = guests.filter((g) => !g.is_child);
@@ -470,116 +556,86 @@ export function Guests() {
       />
 
       <ul className="divide-y divide-clay/10 rounded-2xl border border-clay/15 bg-paper">
-        {visible.map((guest) =>
-          editing === guest.id ? (
-            <li key={guest.id}>
-              <EditGuestForm
-                guest={guest}
-                onCancel={() => setEditing(null)}
-                onSave={(change) => {
-                  setEditing(null);
-                  update(guest.id, change);
-                }}
-              />
-            </li>
-          ) : (
-            <li key={guest.id} className="p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="font-medium text-ink">
-                    {guest.full_name}
-                    {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-muted">
-                    {STATUS_LABEL[guest.status]}
-                    {guest.kind === 'companion' &&
-                      hostsOf.get(guest.id) &&
-                      ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
-                  </p>
-                </div>
-
-                <div className="flex shrink-0 flex-wrap gap-1.5">
-                  {(['confirmed', 'declined', 'pending'] as const).map((status) => (
-                    <button
-                      key={status}
-                      type="button"
-                      aria-pressed={guest.status === status}
-                      onClick={() => setStatus(guest.id, status)}
-                      className={cn(
-                        'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
-                        guest.status === status
-                          ? 'border-clay bg-clay text-paper'
-                          : 'border-clay/30 text-clay hover:border-clay',
-                      )}
-                    >
-                      {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
-                      {STATUS_LABEL[status]}
-                    </button>
-                  ))}
-                  {guest.kind === 'principal' && (
-                    <button
-                      type="button"
-                      aria-label={`Acompanhantes de ${guest.full_name}`}
-                      aria-expanded={expanded === guest.id}
-                      onClick={() => setExpanded(expanded === guest.id ? null : guest.id)}
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-full border px-2.5 py-1.5 font-mono text-xs transition-colors duration-150',
-                        expanded === guest.id
-                          ? 'border-clay bg-clay text-paper'
-                          : 'border-clay/30 text-clay hover:border-clay',
-                      )}
-                    >
-                      <Users className="size-3.5" />
-                      {companionsOf.get(guest.id)?.length ?? 0}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
-                    aria-pressed={guest.is_child}
-                    onClick={() => update(guest.id, { is_child: !guest.is_child })}
-                    className={cn(
-                      'rounded-full border p-1.5 transition-colors duration-150',
-                      guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
-                    )}
-                  >
-                    <Baby className="size-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Editar ${guest.full_name}`}
-                    onClick={() => setEditing(guest.id)}
-                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
-                  >
-                    <Pencil className="size-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Excluir ${guest.full_name}`}
-                    onClick={() => remove(guest)}
-                    className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
-                </div>
+        {visible.map((guest) => (
+          <li key={guest.id} className="p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="font-medium text-ink">
+                  {guest.full_name}
+                  {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
+                </p>
+                <p className="mt-0.5 font-mono text-xs text-muted">
+                  {STATUS_LABEL[guest.status]}
+                  {guest.kind === 'companion' &&
+                    hostsOf.get(guest.id) &&
+                    ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
+                </p>
               </div>
 
-              {expanded === guest.id && (
-                <CompanionsPanel
-                  principal={guest}
-                  companions={companionsOf.get(guest.id) ?? []}
-                  editing={panelEditing}
-                  onEdit={setPanelEditing}
-                  onSave={update}
-                  onAdd={(fullName, isChild) => addCompanion(guest, fullName, isChild)}
-                  onRemove={(companion) => removeCompanion(guest, companion)}
-                />
-              )}
-            </li>
-          ),
-        )}
+              <div className="flex shrink-0 flex-wrap gap-1.5">
+                {(['confirmed', 'declined', 'pending'] as const).map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    aria-pressed={guest.status === status}
+                    onClick={() => setStatus(guest.id, status)}
+                    className={cn(
+                      'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
+                      guest.status === status
+                        ? 'border-clay bg-clay text-paper'
+                        : 'border-clay/30 text-clay hover:border-clay',
+                    )}
+                  >
+                    {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
+                    {STATUS_LABEL[status]}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
+                  aria-pressed={guest.is_child}
+                  onClick={() => update(guest.id, { is_child: !guest.is_child })}
+                  className={cn(
+                    'rounded-full border p-1.5 transition-colors duration-150',
+                    guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
+                  )}
+                >
+                  <Baby className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Editar ${guest.full_name}`}
+                  onClick={() => setEditing(guest.id)}
+                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Excluir ${guest.full_name}`}
+                  onClick={() => remove(guest)}
+                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            </div>
+          </li>
+        ))}
         {visible.length === 0 && <li className="p-6 text-center text-sm text-muted">Nenhum convidado encontrado.</li>}
       </ul>
+
+      {editingGuest && (
+        <GuestModal
+          key={editingGuest.id}
+          guest={editingGuest}
+          companions={companionsOf.get(editingGuest.id) ?? []}
+          onClose={() => setEditing(null)}
+          onSave={update}
+          onAddCompanion={(fullName, isChild) => addCompanion(editingGuest, fullName, isChild)}
+          onRemoveCompanion={(companion) => removeCompanion(editingGuest, companion)}
+        />
+      )}
     </section>
   );
 }
