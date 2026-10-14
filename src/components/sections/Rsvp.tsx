@@ -161,7 +161,7 @@ export function Rsvp() {
                         aria-pressed={choices[person.id] === choice}
                         onClick={() => setChoices((prev) => ({ ...prev, [person.id]: choice }))}
                         className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors duration-150',
+                          'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors duration-150',
                           choices[person.id] === choice
                             ? 'border-clay bg-clay text-paper'
                             : 'border-clay/30 text-clay hover:border-clay',
