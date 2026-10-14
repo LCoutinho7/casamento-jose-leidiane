@@ -71,8 +71,7 @@ export function Countdown() {
   const units = [
     { label: 'dias', value: time.days },
     { label: 'horas', value: time.hours },
-    { label: 'min', value: time.minutes },
-    { label: 'seg', value: time.seconds },
+    { label: 'minutos', value: time.minutes },
   ];
 
   const downloadIcs = () => {
@@ -100,7 +99,7 @@ export function Countdown() {
 
           <div
             aria-hidden
-            className="relative grid grid-cols-4 divide-x divide-clay/10 rounded-3xl border border-clay/15 bg-paper px-2 pt-10 shadow-card sm:px-6"
+            className="relative grid grid-cols-3 divide-x divide-clay/10 rounded-3xl border border-clay/15 bg-paper px-2 pt-10 shadow-card sm:px-6"
           >
             <Binding />
             {units.map((unit) => (
