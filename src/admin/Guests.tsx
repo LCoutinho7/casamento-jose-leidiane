@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Baby, Check, Plus, Trash2, UserPlus, X } from 'lucide-react';
+import { Baby, Check, Pencil, Plus, Trash2, UserPlus, X } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Field';
 import { cn } from '../lib/cn';
@@ -14,8 +14,7 @@ const STATUS_LABEL: Record<Status, string> = {
 };
 
 // Mesma ideia da busca do banco: sem acento, sem caixa, espaços colapsados.
-const normalize = (text: string) =>
-  text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+const normalize = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 interface CompanionDraft {
   full_name: string;
@@ -73,10 +72,27 @@ function AddGuestForm({ onAdded }: { onAdded: () => void }) {
   return (
     <form onSubmit={submit} className="space-y-4 rounded-2xl border border-clay/15 bg-paper p-6 shadow-paper">
       <p className="eyebrow">Novo convidado</p>
-      <Input label="Nome completo" name="guest_full_name" required value={name} onChange={(e) => setName(e.target.value)} />
+      <Input
+        label="Nome completo"
+        name="guest_full_name"
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="Telefone (opcional)" name="guest_phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        <Input label="E-mail (opcional)" name="guest_email_new" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          label="Telefone (opcional)"
+          name="guest_phone"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <Input
+          label="E-mail (opcional)"
+          name="guest_email_new"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
       <label className="flex items-center gap-2 text-sm text-muted">
         <input type="checkbox" checked={isChild} onChange={(e) => setIsChild(e.target.checked)} /> É criança
@@ -146,10 +162,64 @@ function AddGuestForm({ onAdded }: { onAdded: () => void }) {
   );
 }
 
+function EditGuestForm({
+  guest,
+  onSave,
+  onCancel,
+}: {
+  guest: GuestRow;
+  onSave: (change: Partial<GuestRow>) => void;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState(guest.full_name);
+  const [phone, setPhone] = useState(guest.phone ?? '');
+  const [email, setEmail] = useState(guest.email ?? '');
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    onSave({
+      full_name: name.trim(),
+      phone: phone.trim() || null,
+      email: email.trim() || null,
+    });
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4 p-4">
+      <Input
+        label="Nome completo"
+        name="edit_full_name"
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input label="Telefone (opcional)" name="edit_phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+        <Input
+          label="E-mail (opcional)"
+          name="edit_email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button type="submit" size="sm" disabled={!name.trim()}>
+          Salvar
+        </Button>
+        <Button type="button" size="sm" variant="secondary" onClick={onCancel}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function Guests() {
   const [guests, setGuests] = useState<GuestRow[]>([]);
   const [links, setLinks] = useState<GuestLinkRow[]>([]);
   const [query, setQuery] = useState('');
+  const [editing, setEditing] = useState<string | null>(null);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -201,8 +271,7 @@ export function Guests() {
   };
 
   const remove = async (guest: GuestRow) => {
-    const aviso =
-      guest.kind === 'principal' ? '\n\nOs acompanhantes dele continuam na lista.' : '';
+    const aviso = guest.kind === 'principal' ? '\n\nOs acompanhantes dele continuam na lista.' : '';
     if (!window.confirm(`Excluir ${guest.full_name} da lista?${aviso}`)) return;
     setGuests((prev) => prev.filter((g) => g.id !== guest.id));
     const { error: deleteError } = await supabase.from('guests').delete().eq('id', guest.id);
@@ -213,7 +282,10 @@ export function Guests() {
   };
 
   const setStatus = (id: string, status: Status) =>
-    update(id, { status, responded_at: status === 'pending' ? null : new Date().toISOString() });
+    update(id, {
+      status,
+      responded_at: status === 'pending' ? null : new Date().toISOString(),
+    });
 
   return (
     <section className="mt-8 space-y-6">
@@ -229,7 +301,8 @@ export function Guests() {
       </div>
 
       <p className="text-center font-mono text-xs text-muted">
-        {adults.length} na lista final{children > 0 && ` · ${children} ${children === 1 ? 'criança' : 'crianças'} à parte`}
+        {adults.length} na lista final
+        {children > 0 && ` · ${children} ${children === 1 ? 'criança' : 'crianças'} à parte`}
       </p>
 
       <AddGuestForm onAdded={load} />
@@ -244,58 +317,83 @@ export function Guests() {
       />
 
       <ul className="divide-y divide-clay/10 rounded-2xl border border-clay/15 bg-paper">
-        {visible.map((guest) => (
-          <li key={guest.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="font-medium text-ink">
-                {guest.full_name}
-                {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
-              </p>
-              <p className="mt-0.5 font-mono text-xs text-muted">
-                {STATUS_LABEL[guest.status]}
-                {guest.kind === 'companion' && hostsOf.get(guest.id) && ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
-              </p>
-            </div>
+        {visible.map((guest) =>
+          editing === guest.id ? (
+            <li key={guest.id}>
+              <EditGuestForm
+                guest={guest}
+                onCancel={() => setEditing(null)}
+                onSave={(change) => {
+                  setEditing(null);
+                  update(guest.id, change);
+                }}
+              />
+            </li>
+          ) : (
+            <li key={guest.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="font-medium text-ink">
+                  {guest.full_name}
+                  {guest.is_child && <span className="ml-2 text-xs text-clay">criança</span>}
+                </p>
+                <p className="mt-0.5 font-mono text-xs text-muted">
+                  {STATUS_LABEL[guest.status]}
+                  {guest.kind === 'companion' &&
+                    hostsOf.get(guest.id) &&
+                    ` · acompanhante de ${hostsOf.get(guest.id)!.join(' e ')}`}
+                </p>
+              </div>
 
-            <div className="flex shrink-0 flex-wrap gap-1.5">
-              {(['confirmed', 'declined', 'pending'] as const).map((status) => (
+              <div className="flex shrink-0 flex-wrap gap-1.5">
+                {(['confirmed', 'declined', 'pending'] as const).map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    aria-pressed={guest.status === status}
+                    onClick={() => setStatus(guest.id, status)}
+                    className={cn(
+                      'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
+                      guest.status === status
+                        ? 'border-clay bg-clay text-paper'
+                        : 'border-clay/30 text-clay hover:border-clay',
+                    )}
+                  >
+                    {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
+                    {STATUS_LABEL[status]}
+                  </button>
+                ))}
                 <button
-                  key={status}
                   type="button"
-                  aria-pressed={guest.status === status}
-                  onClick={() => setStatus(guest.id, status)}
+                  aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
+                  aria-pressed={guest.is_child}
+                  onClick={() => update(guest.id, { is_child: !guest.is_child })}
                   className={cn(
-                    'rounded-full border px-3 py-1.5 text-[0.6875rem] font-semibold tracking-wider uppercase transition-colors duration-150',
-                    guest.status === status ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
+                    'rounded-full border p-1.5 transition-colors duration-150',
+                    guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
                   )}
                 >
-                  {status === 'confirmed' && <Check className="mr-1 inline size-3" />}
-                  {STATUS_LABEL[status]}
+                  <Baby className="size-3.5" />
                 </button>
-              ))}
-              <button
-                type="button"
-                aria-label={guest.is_child ? 'Marcar como adulto' : 'Marcar como criança'}
-                aria-pressed={guest.is_child}
-                onClick={() => update(guest.id, { is_child: !guest.is_child })}
-                className={cn(
-                  'rounded-full border p-1.5 transition-colors duration-150',
-                  guest.is_child ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
-                )}
-              >
-                <Baby className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                aria-label={`Excluir ${guest.full_name}`}
-                onClick={() => remove(guest)}
-                className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
-              >
-                <Trash2 className="size-3.5" />
-              </button>
-            </div>
-          </li>
-        ))}
+                <button
+                  type="button"
+                  aria-label={`Editar ${guest.full_name}`}
+                  onClick={() => setEditing(guest.id)}
+                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay"
+                >
+                  <Pencil className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Excluir ${guest.full_name}`}
+                  onClick={() => remove(guest)}
+                  className="rounded-full border border-clay/30 p-1.5 text-clay transition-colors duration-150 hover:border-clay-dark hover:text-clay-dark"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            </li>
+          ),
+        )}
         {visible.length === 0 && <li className="p-6 text-center text-sm text-muted">Nenhum convidado encontrado.</li>}
       </ul>
     </section>

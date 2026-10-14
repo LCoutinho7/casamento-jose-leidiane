@@ -113,10 +113,18 @@ begin
     return;
   end if;
 
+  -- Nome idêntico ao digitado vence: sem isso, "Ana Astolfi" bateria também com
+  -- "Ana Claudia Astolfi" e nunca conseguiria se encontrar.
   select array_agg(g.id) into found
   from guests g
-  where string_to_array(g.name_key, ' ') @> typed
-    and split_part(g.name_key, ' ', 1) = typed[1];
+  where g.name_key = array_to_string(typed, ' ');
+
+  if found is null then
+    select array_agg(g.id) into found
+    from guests g
+    where string_to_array(g.name_key, ' ') @> typed
+      and split_part(g.name_key, ' ', 1) = typed[1];
+  end if;
 
   if found is null then
     reason := 'not_found';

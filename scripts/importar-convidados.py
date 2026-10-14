@@ -24,10 +24,17 @@ def sql(value):
     return "'" + str(value).strip().replace("'", "''") + "'"
 
 
+def text(cell):
+    # O Excel guarda telefone como número: 11981017458 viria como "11981017458.0".
+    if isinstance(cell, float) and cell.is_integer():
+        cell = int(cell)
+    return None if cell is None else str(cell).strip()
+
+
 def rows(sheet):
     for row in sheet.iter_rows(min_row=HEADER_ROW + 1, values_only=True):
         if row and row[0] and row[1] and str(row[1]).strip():
-            yield [None if cell is None else str(cell).strip() for cell in row]
+            yield [text(cell) for cell in row]
 
 
 def main(path):
