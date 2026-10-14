@@ -49,6 +49,7 @@ export function createPledge(pledge: {
 export interface RsvpPerson {
   id: string;
   full_name: string;
+  kind?: 'principal' | 'companion';
   is_self: boolean;
   status: 'pending' | 'confirmed' | 'declined';
   responded_by: string | null;

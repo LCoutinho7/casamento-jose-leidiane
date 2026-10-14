@@ -168,12 +168,13 @@ begin
         jsonb_build_object(
           'id', g.id,
           'full_name', g.full_name,
+          'kind', g.kind,
           'is_self', g.id = found.person,
           'status', g.status,
           'responded_by', r.full_name,
           'responded_at', g.responded_at
         )
-        order by g.id <> found.person, g.kind, g.full_name
+        order by g.id <> found.person, g.kind desc, g.full_name
       )
       from guests g
       left join guests r on r.id = g.responded_by

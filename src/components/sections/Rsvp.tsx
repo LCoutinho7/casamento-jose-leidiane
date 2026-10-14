@@ -31,6 +31,75 @@ function currentAnswer(person: RsvpPerson) {
   return `${label}${by}${when}`;
 }
 
+const firstName = (person: RsvpPerson) => person.full_name.split(' ')[0];
+
+/**
+ * Quem buscou vem primeiro. Se for o titular, os demais são os acompanhantes dele;
+ * se for acompanhante, os demais são os titulares a quem está ligado.
+ */
+function describeInvite(group: RsvpPerson[]) {
+  const self = group.find((person) => person.is_self);
+  if (!self) return null;
+  const others = group.filter((person) => !person.is_self);
+  const selfIsHost = self.kind !== 'companion';
+  const hosts = selfIsHost ? [self] : others;
+  return {
+    self,
+    others,
+    title: `Convite de ${hosts.map(firstName).join(' e ')}`,
+    badge: selfIsHost ? 'Titular do convite' : 'Você',
+    othersLabel: selfIsHost
+      ? 'Acompanhantes do convite:'
+      : others.length > 1
+        ? 'Titulares do convite:'
+        : 'Titular do convite:',
+  };
+}
+
+function PersonRow({
+  person,
+  badge,
+  choice,
+  onChoose,
+}: {
+  person: RsvpPerson;
+  badge?: string;
+  choice?: Choice;
+  onChoose: (id: string, choice: Choice) => void;
+}) {
+  return (
+    <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div>
+        <p className="flex flex-wrap items-center gap-2 font-medium text-ink">
+          {person.full_name}
+          {badge && (
+            <span className="rounded-full bg-clay/10 px-2 py-0.5 text-xs font-medium text-clay-dark">{badge}</span>
+          )}
+        </p>
+        <p className="mt-0.5 font-mono text-xs text-muted">{currentAnswer(person)}</p>
+      </div>
+
+      <div className="flex gap-2" role="group" aria-label={`Resposta de ${person.full_name}`}>
+        {(['confirmed', 'declined'] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={choice === option}
+            onClick={() => onChoose(person.id, option)}
+            className={cn(
+              'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors duration-150',
+              choice === option ? 'border-clay bg-clay text-paper' : 'border-clay/30 text-clay hover:border-clay',
+            )}
+          >
+            {option === 'confirmed' ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+            {option === 'confirmed' ? 'Vou' : 'Não vou'}
+          </button>
+        ))}
+      </div>
+    </li>
+  );
+}
+
 export function Rsvp() {
   const remaining = Math.ceil((RSVP_DEADLINE.getTime() - Date.now()) / DAY);
   const expired = remaining <= 0;
@@ -67,6 +136,10 @@ export function Rsvp() {
       setBusy(false);
     }
   };
+
+  const choose = (id: string, choice: Choice) => setChoices((prev) => ({ ...prev, [id]: choice }));
+  const invite = group && describeInvite(group);
+  const missing = group ? group.filter((person) => !choices[person.id]).length : 0;
 
   const submit = async () => {
     if (!group) return;
@@ -140,50 +213,45 @@ export function Rsvp() {
 
         {message && <p className="mx-auto mt-6 max-w-md text-center text-sm text-clay-dark">{message}</p>}
 
-        {group && !expired && (
+        {group && invite && !expired && (
           <div className="mx-auto mt-10 max-w-xl">
-            <ul className="divide-y divide-clay/10 rounded-2xl border border-clay/15 bg-white">
-              {group.map((person) => (
-                <li key={person.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-medium text-ink">
-                      {person.full_name}
-                      {person.is_self && <span className="ml-2 text-xs text-clay">(você)</span>}
-                    </p>
-                    <p className="mt-0.5 font-mono text-xs text-muted">{currentAnswer(person)}</p>
-                  </div>
+            <div className="overflow-hidden rounded-2xl border border-clay/15 bg-white">
+              <div className="border-b border-clay/15 bg-sand/40 px-4 py-4 sm:px-5">
+                <h3 className="font-serif text-2xl text-ink">{invite.title}</h3>
+                <p className="mt-1 text-sm text-muted">Selecione a presença para cada pessoa abaixo:</p>
+              </div>
 
-                  <div className="flex gap-2" role="group" aria-label={`Resposta de ${person.full_name}`}>
-                    {(['confirmed', 'declined'] as const).map((choice) => (
-                      <button
-                        key={choice}
-                        type="button"
-                        aria-pressed={choices[person.id] === choice}
-                        onClick={() => setChoices((prev) => ({ ...prev, [person.id]: choice }))}
-                        className={cn(
-                          'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors duration-150',
-                          choices[person.id] === choice
-                            ? 'border-clay bg-clay text-paper'
-                            : 'border-clay/30 text-clay hover:border-clay',
-                        )}
-                      >
-                        {choice === 'confirmed' ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-                        {choice === 'confirmed' ? 'Vou' : 'Não vou'}
-                      </button>
+              <ul>
+                <PersonRow person={invite.self} badge={invite.badge} choice={choices[invite.self.id]} onChoose={choose} />
+              </ul>
+
+              {invite.others.length > 0 && (
+                <div className="border-t border-clay/15">
+                  <p className="px-4 pt-4 text-xs font-semibold tracking-wider text-muted uppercase sm:px-5">
+                    {invite.othersLabel}
+                  </p>
+                  <ul className="divide-y divide-clay/10">
+                    {invite.others.map((person) => (
+                      <PersonRow key={person.id} person={person} choice={choices[person.id]} onChoose={choose} />
                     ))}
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </ul>
+                </div>
+              )}
+            </div>
 
             <Button
               size="lg"
               onClick={submit}
-              disabled={busy || Object.keys(choices).length === 0}
+              disabled={busy || missing > 0}
               className="mt-6 w-full"
             >
               {busy ? 'Salvando' : 'Enviar resposta'}
             </Button>
+            {missing > 0 && (
+              <p className="mt-3 text-center font-mono text-xs text-muted">
+                Falta escolher para {missing} {missing === 1 ? 'pessoa' : 'pessoas'}
+              </p>
+            )}
 
             {saved && (
               <p className="mt-4 flex items-center justify-center gap-2 text-sm text-ink">
